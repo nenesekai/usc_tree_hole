@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/model/post.dart';
-import 'package:usc_tree_hole/view/post_card.dart';
 import 'package:usc_tree_hole/view/posts_list.dart';
 
 class PostsPage extends StatefulWidget {
@@ -76,7 +75,7 @@ class _PostsPageState extends State<PostsPage> {
               child: _isLoading
                   ? const CircularProgressIndicator()
                   : posts.isNotEmpty
-                      ? PostsListView()
+                      ? PostsListView(posts: posts, onPressedPost: (post) {})
                       : const Text('No Posts Yet'),
             ));
       },

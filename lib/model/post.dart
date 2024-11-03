@@ -10,12 +10,14 @@ class Post {
   final String title;
   final String content;
   final String category;
+  final String authorId;
 
   Post._({
     required this.id,
     required this.title,
     required this.content,
     required this.category,
+    required this.authorId,
   });
 
   factory Post.fromSnapshot(DocumentSnapshot snapshot) {
@@ -25,6 +27,7 @@ class Post {
       title: data['title'],
       content: data['content'],
       category: data['category'],
+      authorId: data['author'].id,
     );
   }
 }

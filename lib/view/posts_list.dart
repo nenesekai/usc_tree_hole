@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/view/post_card.dart';
 
 class PostsListView extends StatelessWidget {
   const PostsListView({
     super.key,
+    required this.posts,
+    required this.onPressedPost,
   });
+
+  final List<Post> posts;
+  final void Function(Post) onPressedPost;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return ListView(
-      children: [
-        Padding(
-          padding: EdgeInsets.all(6.0),
-          child: PostCard(theme: theme),
-        )
-      ],
+      children: posts
+          .map((post) => Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: PostCard(post: post),
+              ))
+          .toList(),
     );
   }
 }
