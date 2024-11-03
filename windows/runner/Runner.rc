@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
+            VALUE "CompanyName", "edu.cs310team40" "\0"
             VALUE "FileDescription", "usc_tree_hole" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "usc_tree_hole" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 edu.cs310team40. All rights reserved." "\0"
             VALUE "OriginalFilename", "usc_tree_hole.exe" "\0"
             VALUE "ProductName", "usc_tree_hole" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
