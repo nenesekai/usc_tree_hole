@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:usc_tree_hole/data/profile_provider.dart';
 import 'package:usc_tree_hole/model/post.dart';
-import 'package:usc_tree_hole/model/profile.dart';
 import 'package:usc_tree_hole/view/component/post_card.dart';
 
 class PostsListView extends StatelessWidget {

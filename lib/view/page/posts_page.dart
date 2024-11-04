@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/model/post.dart';

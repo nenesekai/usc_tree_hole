@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:usc_tree_hole/view/page/my_profile_page.dart';
@@ -33,9 +32,9 @@ class MyApp extends StatelessWidget {
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/signin':
-            return MaterialPageRoute(builder: (context) => SignInPage());
+            return MaterialPageRoute(builder: (context) => const SignInPage());
           case '/signup':
-            return MaterialPageRoute(builder: (context) => SignUpPage());
+            return MaterialPageRoute(builder: (context) => const SignUpPage());
           default:
             return MaterialPageRoute(builder: (context) => const HomePage());
         }

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
 import 'package:usc_tree_hole/model/profile.dart';
-import 'package:usc_tree_hole/view/page/my_profile_page.dart';
 import 'package:usc_tree_hole/view/page/not_signed_in_page.dart';
 
 class NotificationsPage extends StatefulWidget {

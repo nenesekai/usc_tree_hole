@@ -4,7 +4,7 @@ import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 
 class PostPage extends StatefulWidget {
-  PostPage({super.key, required this.post});
+  const PostPage({super.key, required this.post});
 
   final Post post;
 

@@ -8,6 +8,8 @@ import 'package:usc_tree_hole/model/profile.dart';
 class SignUpPage extends StatefulWidget {
   static const route = '/signup';
 
+  const SignUpPage({super.key});
+
   @override
   State<SignUpPage> createState() => _SignUpPageState();
 }

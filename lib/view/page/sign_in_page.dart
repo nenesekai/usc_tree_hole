@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 class SignInPage extends StatefulWidget {
   static const route = '/signin';
 
+  const SignInPage({super.key});
+
   @override
   State<SignInPage> createState() => _SignInPageState();
 }
