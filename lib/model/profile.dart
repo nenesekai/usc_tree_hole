@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class User {
+class Profile {
   final String id;
   final String name;
   final String role;
   final String uscId;
   final String? profilePictureUrl;
 
-  User._({
+  Profile._({
     required this.id,
     required this.name,
     required this.role,
@@ -15,9 +15,9 @@ class User {
     this.profilePictureUrl,
   });
 
-  factory User.fromSnapshot(DocumentSnapshot snapshot) {
+  factory Profile.fromSnapshot(DocumentSnapshot snapshot) {
     final data = snapshot.data() as Map<String, dynamic>;
-    return User._(
+    return Profile._(
       id: snapshot.id,
       name: data['name'],
       role: data['role'],

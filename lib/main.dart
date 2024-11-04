@@ -1,7 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:usc_tree_hole/view/notifications_page.dart';
-import 'package:usc_tree_hole/view/posts_page.dart';
+import 'package:usc_tree_hole/view/page/my_profile_page.dart';
+import 'package:usc_tree_hole/view/page/notifications_page.dart';
+import 'package:usc_tree_hole/view/page/posts_page.dart';
+import 'package:usc_tree_hole/view/page/sign_in_page.dart';
+import 'package:usc_tree_hole/view/page/sign_up_page.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -26,6 +30,16 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const HomePage(),
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/signin':
+            return MaterialPageRoute(builder: (context) => SignInPage());
+          case '/signup':
+            return MaterialPageRoute(builder: (context) => SignUpPage());
+          default:
+            return MaterialPageRoute(builder: (context) => const HomePage());
+        }
+      },
     );
   }
 }
@@ -62,7 +76,7 @@ class _HomePageState extends State<HomePage> {
       body: <Widget>[
         const PostsPage(),
         const NotificationsPage(),
-        Placeholder(),
+        const MyProfilePage(),
       ][_selectedPage],
       bottomNavigationBar: NavigationBar(
         destinations: [

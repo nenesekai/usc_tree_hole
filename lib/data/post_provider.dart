@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:usc_tree_hole/model/post.dart';
 
 abstract class PostProvider {
   Stream<List<Post>> get allPosts;
   Future<void> addPost(Post post);
   Future<Post> getPostById(String postId);
-  void loadAllPosts([String? category]);
+  void loadAllPosts([PostCategory? category]);
   void dispose();
 }
 
@@ -17,6 +18,10 @@ class FirestorePostProvider implements PostProvider {
   }
 
   final StreamController<List<Post>> _allPostsController = StreamController();
+
+  static PostCategory getCategoryByName(String name) {
+    return postCategories.where((category) => category.label == name).first;
+  }
 
   @override
   late final Stream<List<Post>> allPosts;
@@ -31,11 +36,11 @@ class FirestorePostProvider implements PostProvider {
   }
 
   @override
-  void loadAllPosts([String? category]) {
+  void loadAllPosts([PostCategory? category]) {
     Query collection = FirebaseFirestore.instance.collection('posts');
 
     if (category != null) {
-      collection = collection.where('category', isEqualTo: category);
+      collection = collection.where('category', isEqualTo: category.label);
     }
 
     final querySnapshot = collection.snapshots();
