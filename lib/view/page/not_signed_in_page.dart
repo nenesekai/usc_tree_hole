@@ -22,7 +22,7 @@ class NotSignedInPage extends StatelessWidget {
         ElevatedButton(
             child: const Text('Create Account'),
             onPressed: () {
-              FirebaseAuth.instance.signOut();
+              Navigator.pushNamed(context, '/signup');
             }),
       ]),
     );
