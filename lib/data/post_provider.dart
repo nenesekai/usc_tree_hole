@@ -31,6 +31,9 @@ class FirestorePostProvider implements PostProvider {
     return posts.add({
       'title': post.title,
       'content': post.content,
+      'category': post.category,
+      'author':
+          FirebaseFirestore.instance.collection('users').doc(post.authorId),
     });
   }
 

@@ -20,14 +20,14 @@ const List<PostCategory> postCategories = <PostCategory>[
 ];
 
 class Post {
-  final String id;
+  final String? id;
   final String title;
   final String content;
   final String category;
   final String authorId;
 
-  Post._({
-    required this.id,
+  Post({
+    this.id,
     required this.title,
     required this.content,
     required this.category,
@@ -36,7 +36,7 @@ class Post {
 
   factory Post.fromSnapshot(DocumentSnapshot snapshot) {
     final data = snapshot.data() as Map<String, dynamic>;
-    return Post._(
+    return Post(
       id: snapshot.id,
       title: data['title'],
       content: data['content'],

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
 import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
@@ -15,9 +16,17 @@ class NewPostPage extends StatefulWidget {
 
 class _NewPostPageState extends State<NewPostPage> {
   final _profileProvider = FirebaseProfileProvider();
+  final _postProvider = FirestorePostProvider();
+  final _titleController = TextEditingController();
+  final _contentController = TextEditingController();
+
+  static const _formSpacing = SizedBox(height: 8.0);
 
   bool _isLoading = true;
   PostCategory? _selectedCategory;
+
+  String? _categoryError = null;
+  String? _titleError = null;
 
   late Profile author;
 
@@ -37,13 +46,71 @@ class _NewPostPageState extends State<NewPostPage> {
     super.initState();
   }
 
+  bool validateCategory() {
+    if (_selectedCategory == null) {
+      setState(() {
+        _categoryError = 'Category cannot be empty';
+      });
+      return false;
+    } else {
+      setState(() {
+        _categoryError = null;
+      });
+      return true;
+    }
+  }
+
+  bool validateTitle() {
+    if (_titleController.text.isEmpty) {
+      setState(() {
+        _titleError = 'Title cannot be empty';
+      });
+      return false;
+    } else {
+      setState(() {
+        _titleError = null;
+      });
+      return true;
+    }
+  }
+
+  void onPost() {
+    if (validateCategory() & validateTitle()) {
+      final newPost = Post(
+        authorId: author.id,
+        category: _selectedCategory!.label,
+        title: _titleController.text,
+        content: _contentController.text,
+      );
+      _postProvider.addPost(newPost).then((_) {
+        if (context.mounted) Navigator.pop(context);
+      }).onError((FirebaseException e, stackTrace) {
+        if (context.mounted) {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                    title: const Text('An Error Has Occurred'),
+                    content: Text(e.message ?? ''),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('OK'),
+                      ),
+                    ]);
+              });
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: const Text('New Post'), actions: [
           TextButton(
+            onPressed: onPost,
             child: const Text('Post'),
-            onPressed: () {},
           )
         ]),
         body: _isLoading
@@ -71,7 +138,7 @@ class _NewPostPageState extends State<NewPostPage> {
                           ]),
                     ),
                   ),
-                  const SizedBox(height: 8.0),
+                  const SizedBox(height: 12.0),
                   DropdownMenu(
                     dropdownMenuEntries: postCategories
                         .map((category) => DropdownMenuEntry(
@@ -81,10 +148,39 @@ class _NewPostPageState extends State<NewPostPage> {
                         .toList(),
                     label: const Text('Category'),
                     initialSelection: _selectedCategory,
-                    inputDecorationTheme: const InputDecorationTheme(),
+                    inputDecorationTheme: const InputDecorationTheme(
+                      filled: true,
+                    ),
                     width: double.infinity,
+                    errorText: _categoryError,
                     onSelected: (value) =>
                         setState(() => _selectedCategory = value),
+                  ),
+                  _formSpacing,
+                  TextField(
+                    controller: _titleController,
+                    maxLines: 1,
+                    decoration: InputDecoration(
+                      label: const Text('Title'),
+                      filled: true,
+                      errorText: _titleError,
+                      errorBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red),
+                      ),
+                    ),
+                    onSubmitted: (value) => validateTitle(),
+                  ),
+                  _formSpacing,
+                  TextField(
+                    controller: _contentController,
+                    minLines: 6,
+                    maxLines: 6,
+                    autocorrect: true,
+                    textAlignVertical: TextAlignVertical.top,
+                    decoration: const InputDecoration(
+                      label: Text('Content'),
+                      filled: true,
+                    ),
                   ),
                 ]),
               ));
