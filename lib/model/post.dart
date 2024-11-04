@@ -20,8 +20,6 @@ const List<PostCategory> postCategories = <PostCategory>[
 ];
 
 class Post {
-  static const postCategory = <String>['Academic', 'Life', 'Event'];
-
   final String id;
   final String title;
   final String content;

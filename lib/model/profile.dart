@@ -1,5 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+const roles = <String>[
+  'Undergraduate',
+  'Graduate',
+  'Faculty',
+  'Staff',
+];
+
 class Profile {
   final String id;
   final String name;
@@ -7,7 +14,7 @@ class Profile {
   final String uscId;
   final String? profilePictureUrl;
 
-  Profile._({
+  const Profile({
     required this.id,
     required this.name,
     required this.role,
@@ -17,7 +24,7 @@ class Profile {
 
   factory Profile.fromSnapshot(DocumentSnapshot snapshot) {
     final data = snapshot.data() as Map<String, dynamic>;
-    return Profile._(
+    return Profile(
       id: snapshot.id,
       name: data['name'],
       role: data['role'],

@@ -3,6 +3,7 @@ import 'package:usc_tree_hole/model/profile.dart';
 
 abstract class ProfileProvider {
   Future<Profile> getProfileById(String profileId);
+  Future<void> addProfile(Profile profile);
 }
 
 class FirebaseProfileProvider implements ProfileProvider {
@@ -13,5 +14,14 @@ class FirebaseProfileProvider implements ProfileProvider {
         .doc(profileId)
         .get()
         .then((DocumentSnapshot doc) => Profile.fromSnapshot(doc));
+  }
+
+  @override
+  Future<void> addProfile(Profile profile) {
+    return FirebaseFirestore.instance.collection('users').doc(profile.id).set({
+      'name': profile.name,
+      'role': profile.role,
+      'uscId': profile.uscId,
+    });
   }
 }
