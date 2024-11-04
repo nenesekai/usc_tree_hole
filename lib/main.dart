@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/view/page/my_profile_page.dart';
+import 'package:usc_tree_hole/view/page/new_post_page.dart';
 import 'package:usc_tree_hole/view/page/notifications_page.dart';
 import 'package:usc_tree_hole/view/page/posts_page.dart';
 import 'package:usc_tree_hole/view/page/sign_in_page.dart';
@@ -35,6 +37,11 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (context) => const SignInPage());
           case '/signup':
             return MaterialPageRoute(builder: (context) => const SignUpPage());
+          case '/newpost':
+            return MaterialPageRoute(builder: (context) {
+              final category = settings.arguments as PostCategory;
+              return NewPostPage(initialCategory: category);
+            });
           default:
             return MaterialPageRoute(builder: (context) => const HomePage());
         }

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/model/post.dart';
@@ -20,9 +23,21 @@ class _PostsPageState extends State<PostsPage> {
   final snackBar =
       const SnackBar(content: Text('You Must Sign In Before You Can Post!'));
 
+  late StreamSubscription<User?> _userSubscription;
+  late bool _isSignedIn;
+
   @override
   void initState() {
     _firestorePostProvider.loadAllPosts(_selectedCategory);
+    _isSignedIn = FirebaseAuth.instance.currentUser != null;
+    _userSubscription =
+        FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (mounted) {
+        setState(() {
+          _isSignedIn = FirebaseAuth.instance.currentUser != null;
+        });
+      }
+    });
     _isLoading = false;
     super.initState();
   }
@@ -30,6 +45,7 @@ class _PostsPageState extends State<PostsPage> {
   @override
   void dispose() {
     _firestorePostProvider.dispose();
+    _userSubscription.cancel();
     super.dispose();
   }
 
@@ -68,8 +84,13 @@ class _PostsPageState extends State<PostsPage> {
             icon: const Icon(Icons.add),
             label: const Text('New Post'),
             onPressed: () {
-              ScaffoldMessenger.of(context).removeCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              if (_isSignedIn) {
+                Navigator.pushNamed(context, '/newpost',
+                    arguments: _selectedCategory);
+              } else {
+                ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              }
             }),
         body: Center(
             child: _isLoading
