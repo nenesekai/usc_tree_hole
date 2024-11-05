@@ -1,5 +1,5 @@
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:usc_tree_hole/data/profile_provider.dart';
 
 class Avatar extends StatelessWidget {
   const Avatar({
@@ -15,9 +15,8 @@ class Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ref = FirebaseStorage.instance.ref('$userId.jpg');
     return FutureBuilder(
-        future: ref.getDownloadURL(),
+        future: FirebaseProfileProvider().getAvatarUrl(userId),
         builder: (context, snapshot) {
           return SizedBox(
               width: size,

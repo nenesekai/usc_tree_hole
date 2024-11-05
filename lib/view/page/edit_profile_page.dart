@@ -1,6 +1,12 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+// import 'package:image_picker/image_picker.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
 import 'package:usc_tree_hole/model/profile.dart';
+import 'package:usc_tree_hole/view/component/avatar.dart';
 
 class EditProfilePage extends StatefulWidget {
   static const route = '/editprofile';
@@ -21,8 +27,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String? _nameError;
   String? _uscIdError;
 
+  late Avatar _avatar;
+
   @override
   void initState() {
+    _avatar = Avatar(userId: widget.profileId);
     _profileProvider.getProfileById(widget.profileId).then((Profile profile) {
       if (mounted) {
         setState(() {
@@ -33,6 +42,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         });
       }
     });
+
     super.initState();
   }
 
@@ -67,9 +77,30 @@ class _EditProfilePageState extends State<EditProfilePage> {
           : Padding(
               padding: EdgeInsets.all(12.0),
               child: ListView(children: [
+                _avatar,
                 ElevatedButton(
                   onPressed: () {
-                    // TODO
+                    ImagePicker()
+                        .pickImage(source: ImageSource.gallery)
+                        .then((XFile? image) {
+                      if (image == null) return;
+                      _profileProvider
+                          .uploadAvatar(
+                        File(image.path),
+                        widget.profileId,
+                      )
+                          .then(
+                        (value) {
+                          if (mounted) {
+                            setState(() {
+                              _avatar = Avatar(
+                                userId: widget.profileId,
+                              );
+                            });
+                          }
+                        },
+                      );
+                    });
                   },
                   child: const Text('Change Profile Picture'),
                 ),
