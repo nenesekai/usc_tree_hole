@@ -6,6 +6,7 @@ import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 
 class NewPostPage extends StatefulWidget {
+  static const route = '/newpost';
   const NewPostPage({super.key, this.initialCategory});
 
   final PostCategory? initialCategory;

@@ -12,14 +12,12 @@ class Profile {
   final String name;
   final String role;
   final String uscId;
-  final String? profilePictureUrl;
 
   const Profile({
     required this.id,
     required this.name,
     required this.role,
     required this.uscId,
-    this.profilePictureUrl,
   });
 
   factory Profile.fromSnapshot(DocumentSnapshot snapshot) {
@@ -29,7 +27,6 @@ class Profile {
       name: data['name'],
       role: data['role'],
       uscId: data['uscId'],
-      profilePictureUrl: data['profilePicture'],
     );
   }
 }
