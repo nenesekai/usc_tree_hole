@@ -32,6 +32,10 @@ class _PostPageState extends State<PostPage> {
   bool _hasRepliedBefore = false;
   bool _isLoading = true;
 
+  Map<String, Reply> repliesById = {};
+  Map<String, List<Reply>> replyChildren = {};
+  List<Reply> orderedReplies = [];
+
   @override
   void initState() {
     super.initState();
@@ -55,22 +59,45 @@ class _PostPageState extends State<PostPage> {
       // Fetch profiles for non-anonymous replies
       for (var reply in replies) {
         if (!reply.isAnonymous && !_userProfiles.containsKey(reply.authorId)) {
-          final profile =
-              await _profileProvider.getProfileById(reply.authorId);
+          final profile = await _profileProvider.getProfileById(reply.authorId);
           _userProfiles[reply.authorId] = profile;
         }
       }
+
       setState(() {
         _replies = replies;
+
+        // Build the repliesById map
+        repliesById = { for (var reply in _replies) reply.id: reply };
+
+        // Build the replyChildren map
+        replyChildren = {};
+        for (var reply in _replies) {
+          replyChildren[reply.parentId] ??= [];
+          replyChildren[reply.parentId]!.add(reply);
+        }
+
+        // Build the orderedReplies list
+        orderedReplies = _buildReplyList(widget.postId);
       });
     });
+  }
+
+  List<Reply> _buildReplyList(String parentId) {
+    List<Reply> orderedReplies = [];
+    if (replyChildren[parentId] != null) {
+      for (var reply in replyChildren[parentId]!) {
+        orderedReplies.add(reply);
+        orderedReplies.addAll(_buildReplyList(reply.id));
+      }
+    }
+    return orderedReplies;
   }
 
   Future<void> _checkUserReplyStatus() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      final status =
-          await _replyProvider.getUserReplyStatus(widget.postId, user.uid);
+      final status = await _replyProvider.getUserReplyStatus(widget.postId, user.uid);
       if (status.isNotEmpty) {
         setState(() {
           _isAnonymous = status['isAnonymous'];
@@ -107,7 +134,7 @@ class _PostPageState extends State<PostPage> {
     // Create and add the reply
     final reply = Reply(
       id: '',
-      content: content,
+      content: content, // Store content without prefix
       authorId: user.uid,
       timestamp: DateTime.now(),
       isAnonymous: _isAnonymous,
@@ -192,8 +219,10 @@ class _PostPageState extends State<PostPage> {
         .toSet();
 
     String anonymousName;
+    int counter = existingNames.length + 1;
     do {
-      anonymousName = 'Anonymous${existingNames.length + 1}';
+      anonymousName = 'Anonymous$counter';
+      counter++;
     } while (existingNames.contains(anonymousName));
 
     return anonymousName;
@@ -207,17 +236,25 @@ class _PostPageState extends State<PostPage> {
     }
   }
 
+  String _getParentAuthorName(Reply reply) {
+    if (reply.parentId == widget.postId) {
+      return ''; // Root reply, no parent author
+    }
+
+    Reply? parentReply = repliesById[reply.parentId];
+    if (parentReply != null) {
+      return _getDisplayName(parentReply);
+    } else {
+      return 'Unknown';
+    }
+  }
+
   int _calculateIndentLevel(Reply reply) {
     int level = 0;
-    String currentParentId = reply.parentId;
-    while (currentParentId != widget.postId) {
+    String? currentParentId = reply.parentId;
+    while (currentParentId != null && currentParentId != widget.postId) {
       level++;
-      Reply? parentReply;
-      try {
-        parentReply = _replies.firstWhere((r) => r.id == currentParentId);
-      } catch (e) {
-        parentReply = null;
-      }
+      Reply? parentReply = repliesById[currentParentId];
       if (parentReply != null) {
         currentParentId = parentReply.parentId;
       } else {
@@ -228,8 +265,7 @@ class _PostPageState extends State<PostPage> {
   }
 
   void _showReplyToReplyDialog(Reply parentReply) {
-    final TextEditingController _replyToReplyController =
-        TextEditingController();
+    final TextEditingController _replyToReplyController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) {
@@ -237,8 +273,7 @@ class _PostPageState extends State<PostPage> {
           title: Text('Reply to ${_getDisplayName(parentReply)}'),
           content: TextField(
             controller: _replyToReplyController,
-            decoration:
-                const InputDecoration(hintText: 'Enter your reply...'),
+            decoration: const InputDecoration(hintText: 'Enter your reply...'),
           ),
           actions: [
             TextButton(
@@ -248,8 +283,7 @@ class _PostPageState extends State<PostPage> {
             TextButton(
               onPressed: () async {
                 Navigator.pop(context);
-                await _addReplyToReply(
-                    parentReply, _replyToReplyController.text.trim());
+                await _addReplyToReply(parentReply, _replyToReplyController.text.trim());
               },
               child: const Text('Reply'),
             ),
@@ -283,7 +317,7 @@ class _PostPageState extends State<PostPage> {
 
     final reply = Reply(
       id: '',
-      content: content,
+      content: content, // Store content without 'reply to XXX: '
       authorId: user.uid,
       timestamp: DateTime.now(),
       isAnonymous: _isAnonymous,
@@ -297,8 +331,7 @@ class _PostPageState extends State<PostPage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading || _post == null || _author == null) {
-      return const Scaffold(
-          body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -317,20 +350,28 @@ class _PostPageState extends State<PostPage> {
           const Divider(),
           Expanded(
             child: ListView.builder(
-              itemCount: _replies.length,
+              itemCount: orderedReplies.length,
               itemBuilder: (context, index) {
-                final reply = _replies[index];
+                final reply = orderedReplies[index];
                 int indentLevel = _calculateIndentLevel(reply);
                 return Padding(
                   padding: EdgeInsets.only(left: indentLevel * 16.0),
                   child: ListTile(
                     leading: reply.isAnonymous
-                        ? CircleAvatar(
-                            child: Text(reply.anonymousName[0]),
-                          )
+                        ? CircleAvatar(child: Text(reply.anonymousName[0]))
                         : Avatar(userId: reply.authorId, size: 40.0),
                     title: Text(_getDisplayName(reply)),
-                    subtitle: Text(reply.content),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (reply.parentId != widget.postId)
+                          Text(
+                            'reply to ${_getParentAuthorName(reply)}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        Text(reply.content),
+                      ],
+                    ),
                     trailing: IconButton(
                       icon: const Icon(Icons.reply),
                       onPressed: () {
