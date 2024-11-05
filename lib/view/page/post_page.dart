@@ -43,18 +43,23 @@ class _PostPageState extends State<PostPage> {
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 6.0),
-                                child: Row(
-                                  children: [
-                                    Avatar(userId: author.id, size: 24.0),
-                                    SizedBox(width: 8.0),
-                                    Text(author.name,
-                                        style: const TextStyle(
-                                            fontSize: 18.0,
-                                            fontWeight: FontWeight.w600)),
-                                    const Spacer(),
-                                    Text(post.category),
-                                  ],
-                                ),
+                                child: InkWell(
+                                    onTap: () {
+                                      Navigator.pushNamed(context, '/profile',
+                                          arguments: author.id);
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Avatar(userId: author.id, size: 24.0),
+                                        const SizedBox(width: 8.0),
+                                        Text(author.name,
+                                            style: const TextStyle(
+                                                fontSize: 18.0,
+                                                fontWeight: FontWeight.w600)),
+                                        const Spacer(),
+                                        Text(post.category),
+                                      ],
+                                    )),
                               ),
                               const Divider(),
                               const SizedBox(height: 16.0),

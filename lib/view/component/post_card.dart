@@ -37,13 +37,18 @@ class PostCard extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: [
-                                Avatar(userId: post.authorId, size: 18.0),
-                                const SizedBox(width: 8.0),
-                                Text(profileSnapshot.data!.name),
-                              ],
-                            ),
+                            InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(context, '/profile',
+                                      arguments: profileSnapshot.data!.id);
+                                },
+                                child: Row(
+                                  children: [
+                                    Avatar(userId: post.authorId, size: 18.0),
+                                    const SizedBox(width: 8.0),
+                                    Text(profileSnapshot.data!.name),
+                                  ],
+                                )),
                             const SizedBox(height: 6.0),
                             Text(
                               post.title,
