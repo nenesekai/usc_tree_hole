@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:usc_tree_hole/model/post.dart';
+import 'package:usc_tree_hole/view/page/edit_profile_page.dart';
 import 'package:usc_tree_hole/view/page/my_profile_page.dart';
 import 'package:usc_tree_hole/view/page/new_post_page.dart';
 import 'package:usc_tree_hole/view/page/not_signed_in_page.dart';
@@ -53,6 +54,11 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (context) {
               final profileId = settings.arguments as String;
               return ProfilePage(profileId: profileId);
+            });
+          case EditProfilePage.route:
+            return MaterialPageRoute(builder: (context) {
+              final profileId = settings.arguments as String;
+              return EditProfilePage(profileId: profileId);
             });
           default:
             return MaterialPageRoute(
