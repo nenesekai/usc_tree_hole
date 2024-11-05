@@ -68,7 +68,7 @@ class _PostPageState extends State<PostPage> {
         _replies = replies;
 
         // Build the repliesById map
-        repliesById = { for (var reply in _replies) reply.id: reply };
+        repliesById = {for (var reply in _replies) reply.id: reply};
 
         // Build the replyChildren map
         replyChildren = {};
@@ -97,7 +97,8 @@ class _PostPageState extends State<PostPage> {
   Future<void> _checkUserReplyStatus() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      final status = await _replyProvider.getUserReplyStatus(widget.postId, user.uid);
+      final status =
+          await _replyProvider.getUserReplyStatus(widget.postId, user.uid);
       if (status.isNotEmpty) {
         setState(() {
           _isAnonymous = status['isAnonymous'];
@@ -265,7 +266,8 @@ class _PostPageState extends State<PostPage> {
   }
 
   void _showReplyToReplyDialog(Reply parentReply) {
-    final TextEditingController _replyToReplyController = TextEditingController();
+    final TextEditingController _replyToReplyController =
+        TextEditingController();
     showDialog(
       context: context,
       builder: (context) {
@@ -283,7 +285,8 @@ class _PostPageState extends State<PostPage> {
             TextButton(
               onPressed: () async {
                 Navigator.pop(context);
-                await _addReplyToReply(parentReply, _replyToReplyController.text.trim());
+                await _addReplyToReply(
+                    parentReply, _replyToReplyController.text.trim());
               },
               child: const Text('Reply'),
             ),
@@ -302,8 +305,8 @@ class _PostPageState extends State<PostPage> {
     }
 
     if (content.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Reply cannot be empty')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Reply cannot be empty')));
       return;
     }
 

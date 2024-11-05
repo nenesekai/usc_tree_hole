@@ -12,12 +12,14 @@ class Profile {
   final String name;
   final String role;
   final String uscId;
+  final List<dynamic> subscribedCategories;
 
   const Profile({
     required this.id,
     required this.name,
     required this.role,
     required this.uscId,
+    this.subscribedCategories = const <String>[],
   });
 
   factory Profile.fromSnapshot(DocumentSnapshot snapshot) {
@@ -27,6 +29,16 @@ class Profile {
       name: data['name'],
       role: data['role'],
       uscId: data['uscId'],
+      subscribedCategories: data['subscribedCategories'],
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': this.name,
+      'role': this.role,
+      'uscId': this.uscId,
+      'subscribedCategories': this.subscribedCategories,
+    };
   }
 }
