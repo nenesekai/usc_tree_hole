@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:usc_tree_hole/main.dart';
+import 'package:usc_tree_hole/view/page/sign_up_page.dart';
 
 class SignInPage extends StatefulWidget {
   static const route = '/signin';
@@ -66,7 +68,10 @@ class _SignInPageState extends State<SignInPage> {
                                   email: _emailController.text,
                                   password: _passwordController.text)
                               .then((UserCredential uc) {
-                            Navigator.pop(context);
+                            if (mounted) {
+                              Navigator.pushReplacementNamed(
+                                  context, HomePage.route);
+                            }
                           }).onError((FirebaseAuthException e, _) {
                             showDialog(
                                 context: context,
@@ -88,7 +93,7 @@ class _SignInPageState extends State<SignInPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                         onPressed: () {
-                          Navigator.popAndPushNamed(context, '/signup');
+                          Navigator.popAndPushNamed(context, SignUpPage.route);
                         },
                         child: const Text('Create an Account'))),
               ],

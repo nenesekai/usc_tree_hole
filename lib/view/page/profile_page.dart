@@ -7,13 +7,14 @@ import 'package:usc_tree_hole/data/profile_provider.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 import 'package:usc_tree_hole/view/component/avatar.dart';
 import 'package:usc_tree_hole/view/page/not_signed_in_page.dart';
+import 'package:usc_tree_hole/view/page/welcome_page.dart';
 
 class ProfilePage extends StatefulWidget {
   static const route = '/profile';
 
-  final String? userId;
+  final String profileId;
 
-  const ProfilePage({super.key, this.userId});
+  const ProfilePage({super.key, required this.profileId});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -23,55 +24,76 @@ class _ProfilePageState extends State<ProfilePage> {
   final _profileProvider = FirebaseProfileProvider();
   final _firebaseAuth = FirebaseAuth.instance;
 
-  late Stream<User?> _currentUser;
-
-  @override
-  void initState() {
-    _currentUser = _firebaseAuth.authStateChanges();
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Profile?>(
-        stream: widget.userId != null
-            ? _profileProvider.getProfileStreamById(widget.userId!)
-            : _currentUser.asyncMap((user) {
-                if (user == null) {
-                  return null;
-                } else {
-                  return _profileProvider.getProfileById(user.uid);
-                }
-              }),
-        builder: (context, snapshot) {
-          Profile? profile = snapshot.data;
-          return Scaffold(
-            appBar: AppBar(
-                title: const Text('Profile'),
-                actions: profile != null &&
-                        profile.id == _firebaseAuth.currentUser?.uid
-                    ? [
-                        IconButton(
-                          icon: const Icon(Icons.logout),
-                          onPressed: () {
-                            _firebaseAuth.signOut();
-                          },
+      stream: _profileProvider.getProfileStreamById(widget.profileId),
+      builder: (context, snapshot) {
+        Profile? profile = snapshot.data;
+        return Scaffold(
+          appBar: AppBar(title: const Text('Profile')),
+          body: snapshot.hasData == false
+              ? const Center(child: CircularProgressIndicator())
+              : profile == null
+                  ? const Center(child: Text('Profile Not Found'))
+                  : Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: ListView(children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: ProfileCard(profile: profile),
                         )
-                      ]
-                    : []),
-            body: !snapshot.hasData
-                ? const Center(child: CircularProgressIndicator())
-                : profile == null
-                    ? widget.userId == null
-                        ? const NotSignedInPage()
-                        : const Text('User Not Found')
-                    : Column(
-                        children: [
-                          Avatar(userId: profile.id),
-                          Text(profile.name),
-                        ],
-                      ),
-          );
-        });
+                      ])),
+        );
+      },
+    );
+  }
+}
+
+class ProfileCard extends StatelessWidget {
+  const ProfileCard({
+    super.key,
+    required this.profile,
+  });
+
+  final Profile profile;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        child: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Row(children: [
+        Avatar(userId: profile.id),
+        SizedBox(width: 14.0),
+        Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              profile.role.toUpperCase(),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+            Text(
+              profile.name,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 36.0,
+              ),
+            ),
+            Text(
+              profile.uscId,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+          ],
+        )
+      ]),
+    ));
   }
 }

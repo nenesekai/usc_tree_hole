@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
+import 'package:usc_tree_hole/main.dart';
 import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 
@@ -262,9 +263,12 @@ class _SignUpPageState extends State<SignUpPage> {
                               role: _roleController.text,
                               uscId: _uscIdController.text,
                             );
-                            _userProvider
-                                .addProfile(profile)
-                                .then((_) => Navigator.pop(context));
+                            _userProvider.addProfile(profile).then((_) {
+                              if (mounted) {
+                                Navigator.pushReplacementNamed(
+                                    context, HomePage.route);
+                              }
+                            });
                           }).onError((FirebaseAuthException e, _) {
                             showDialog(
                                 context: context,
