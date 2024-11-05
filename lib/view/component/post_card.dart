@@ -3,6 +3,7 @@ import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
 import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
+import 'package:usc_tree_hole/view/component/avatar.dart';
 import 'package:usc_tree_hole/view/page/post_page.dart';
 
 class PostCard extends StatelessWidget {
@@ -38,8 +39,8 @@ class PostCard extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.person_rounded, size: 18.0),
-                                const SizedBox(width: 4.0),
+                                Avatar(userId: post.authorId, size: 18.0),
+                                const SizedBox(width: 8.0),
                                 Text(profileSnapshot.data!.name),
                               ],
                             ),
