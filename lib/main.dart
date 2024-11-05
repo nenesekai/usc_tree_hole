@@ -106,7 +106,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: <Widget>[
         const PostsPage(),
-        const NotificationsPage(),
+        NotificationsPage(user: widget.user),
         MyProfilePage(user: widget.user),
       ][_selectedPage],
       bottomNavigationBar: NavigationBar(
