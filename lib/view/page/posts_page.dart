@@ -16,7 +16,6 @@ class PostsPage extends StatefulWidget {
 }
 
 class _PostsPageState extends State<PostsPage> {
-  bool _isLoading = true;
   int _selectedCategoryIndex = 0;
   PostCategory get _selectedCategory => postCategories[_selectedCategoryIndex];
   final FirestorePostProvider _firestorePostProvider = FirestorePostProvider();
@@ -28,7 +27,6 @@ class _PostsPageState extends State<PostsPage> {
 
   @override
   void initState() {
-    _firestorePostProvider.loadAllPosts(_selectedCategory);
     _isSignedIn = FirebaseAuth.instance.currentUser != null;
     _userSubscription =
         FirebaseAuth.instance.authStateChanges().listen((User? user) {
@@ -38,25 +36,20 @@ class _PostsPageState extends State<PostsPage> {
         });
       }
     });
-    _isLoading = false;
     super.initState();
   }
 
   @override
   void dispose() {
-    _firestorePostProvider.dispose();
     _userSubscription.cancel();
     super.dispose();
   }
 
   Future<void> _onChangedCategory(int index) async {
     setState(() {
-      _isLoading = true;
       _selectedCategoryIndex = index;
     });
     Navigator.pop(context);
-    _firestorePostProvider.loadAllPosts(_selectedCategory);
-    setState(() => _isLoading = false);
   }
 
   @override
@@ -92,19 +85,8 @@ class _PostsPageState extends State<PostsPage> {
                 ScaffoldMessenger.of(context).showSnackBar(snackBar);
               }
             }),
-        body: Center(
-            child: _isLoading
-                ? const CircularProgressIndicator()
-                : StreamBuilder<List<Post>>(
-                    stream: _firestorePostProvider.allPosts,
-                    initialData: const [],
-                    builder: (BuildContext context,
-                        AsyncSnapshot<List<Post>> snapshot) {
-                      final posts = snapshot.data!;
-                      return posts.isNotEmpty
-                          ? PostsListView(posts: posts)
-                          : const Text('No Posts Yet');
-                    },
-                  )));
+        body: PostsListView(
+          category: _selectedCategory,
+        ));
   }
 }

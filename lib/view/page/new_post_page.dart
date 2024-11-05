@@ -77,6 +77,7 @@ class _NewPostPageState extends State<NewPostPage> {
   void onPost() {
     if (validateCategory() & validateTitle()) {
       final newPost = Post(
+        id: '',
         authorId: author.id,
         category: _selectedCategory!.label,
         title: _titleController.text,

@@ -20,14 +20,14 @@ const List<PostCategory> postCategories = <PostCategory>[
 ];
 
 class Post {
-  final String? id;
+  final String id;
   final String title;
   final String content;
   final String category;
   final String authorId;
 
   Post({
-    this.id,
+    required this.id,
     required this.title,
     required this.content,
     required this.category,

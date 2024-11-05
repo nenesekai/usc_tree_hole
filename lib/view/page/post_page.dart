@@ -1,12 +1,15 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
 import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 
 class PostPage extends StatefulWidget {
-  const PostPage({super.key, required this.post});
-
-  final Post post;
+  const PostPage({super.key, required this.postId});
+  final String postId;
 
   @override
   State<PostPage> createState() => _PostPageState();
@@ -14,43 +17,38 @@ class PostPage extends StatefulWidget {
 
 class _PostPageState extends State<PostPage> {
   final ProfileProvider _userProvider = FirebaseProfileProvider();
-  bool _isLoading = true;
-  Profile? author;
-
-  @override
-  void initState() {
-    _userProvider.getProfileById(widget.post.authorId).then((author) {
-      this.author = author;
-      setState(() {
-        _isLoading = false;
-      });
-    });
-    super.initState();
-  }
+  final PostProvider _postProvider = FirestorePostProvider();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.post.title)),
-      body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.person),
-                        Text(author?.name ?? 'Loading'),
-                        const Spacer(),
-                        Text(widget.post.category),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  Text(widget.post.content),
-                ])),
-    );
+    return StreamBuilder(
+        stream: _postProvider.getPostStream(widget.postId),
+        builder: (context, snapshot) {
+          return Scaffold(
+            appBar: AppBar(title: Text(snapshot.data?.title ?? '')),
+            body: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: !snapshot.hasData
+                    ? const Center(child: CircularProgressIndicator())
+                    : snapshot.data == null
+                        ? const Center(child: Text('Post Not Found'))
+                        : Column(children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6.0),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.person),
+                                  Text('Loading'),
+                                  const Spacer(),
+                                  Text(snapshot.data!.category),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16.0),
+                            Text(snapshot.data!.content),
+                          ])),
+          );
+        });
   }
 }

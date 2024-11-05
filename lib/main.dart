@@ -20,16 +20,18 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  static final ThemeData _appTheme = ThemeData(
+    colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+    useMaterial3: true,
+  );
+
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'USC Tree Hole',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
-        useMaterial3: true,
-      ),
+      theme: _appTheme,
       home: const HomePage(),
       onGenerateRoute: (settings) {
         switch (settings.name) {

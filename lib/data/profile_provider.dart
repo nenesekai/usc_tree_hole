@@ -3,6 +3,7 @@ import 'package:usc_tree_hole/model/profile.dart';
 
 abstract class ProfileProvider {
   Future<Profile> getProfileById(String profileId);
+  Stream<Profile> getProfileStreamById(String profileId);
   Future<void> addProfile(Profile profile);
 }
 
@@ -14,6 +15,15 @@ class FirebaseProfileProvider implements ProfileProvider {
         .doc(profileId)
         .get()
         .then((DocumentSnapshot doc) => Profile.fromSnapshot(doc));
+  }
+
+  @override
+  Stream<Profile> getProfileStreamById(String profileId) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(profileId)
+        .snapshots()
+        .asyncMap((snapshot) => Profile.fromSnapshot(snapshot));
   }
 
   @override

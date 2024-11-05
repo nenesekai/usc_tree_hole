@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
 import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
@@ -6,6 +7,7 @@ import 'package:usc_tree_hole/view/page/post_page.dart';
 
 class PostCard extends StatelessWidget {
   final ProfileProvider _profileProvider = FirebaseProfileProvider();
+  final PostProvider _postProvider = FirestorePostProvider();
 
   PostCard({
     super.key,
@@ -17,48 +19,47 @@ class PostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return InkWell(
-      onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => PostPage(post: post)));
-      },
-      child: Card(
-        child: Padding(
-            padding: const EdgeInsets.all(14.0),
-            child: FutureBuilder(
-                future: _profileProvider.getProfileById(post.authorId),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    final author = snapshot.data!;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+    return StreamBuilder<Profile>(
+        stream: _profileProvider.getProfileStreamById(post.authorId),
+        builder: (context, profileSnapshot) {
+          return profileSnapshot.hasData
+              ? InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PostPage(postId: post.id)));
+                  },
+                  child: Card(
+                    child: Padding(
+                        padding: const EdgeInsets.all(14.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(Icons.person_rounded, size: 18.0),
-                            const SizedBox(width: 4.0),
-                            Text(author.name),
+                            Row(
+                              children: [
+                                const Icon(Icons.person_rounded, size: 18.0),
+                                const SizedBox(width: 4.0),
+                                Text(profileSnapshot.data!.name),
+                              ],
+                            ),
+                            const SizedBox(height: 6.0),
+                            Text(
+                              post.title,
+                              style: theme.textTheme.titleLarge!.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.start,
+                            ),
+                            Text(
+                              post.content,
+                              maxLines: 2,
+                            ),
                           ],
-                        ),
-                        const SizedBox(height: 6.0),
-                        Text(
-                          post.title,
-                          style: theme.textTheme.titleLarge!.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.start,
-                        ),
-                        Text(
-                          post.content,
-                          maxLines: 2,
-                        ),
-                      ],
-                    );
-                  } else {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                })),
-      ),
-    );
+                        )),
+                  ),
+                )
+              : const Center(child: CircularProgressIndicator());
+        });
   }
 }

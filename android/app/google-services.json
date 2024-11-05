@@ -7,44 +7,6 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:260405458315:android:e140a98b48c82416e3eb8e",
-        "android_client_info": {
-          "package_name": "com.example.makeitso"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDO0rTu6GscIXaB5Xo1L4x_xN_EaL1R7OM"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:260405458315:android:3e95992b2fefa11de3eb8e",
-        "android_client_info": {
-          "package_name": "com.example.usc_tree_hole"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDO0rTu6GscIXaB5Xo1L4x_xN_EaL1R7OM"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:260405458315:android:8ca2323723f928b4e3eb8e",
         "android_client_info": {
           "package_name": "edu.cs310team40.usc_tree_hole"
