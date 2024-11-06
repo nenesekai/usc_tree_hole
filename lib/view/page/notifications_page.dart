@@ -79,31 +79,26 @@ class NotificationCard extends StatelessWidget {
     return Card(
         child: Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 40,
-            width: double.infinity,
-            child: StreamBuilder(
-              stream: FirebaseProfileProvider()
-                  .getProfileStreamById(notification.senderId),
-              builder: (context, snapshot) {
-                final profile = snapshot.data;
-                if (profile != null) {
-                  return Row(children: [
-                    Avatar(userId: profile.id),
-                    Text(profile.name),
-                  ]);
-                } else {
-                  return Placeholder();
-                }
-              },
-            ),
-          ),
-          Text(notification.createTime.toDate().toString()),
-          Text(notification.content),
-        ],
-      ),
+      child: StreamBuilder<Profile>(
+          stream: FirebaseProfileProvider()
+              .getProfileStreamById(notification.senderId),
+          builder: (context, snapshot) {
+            final sender = snapshot.data;
+            if (sender == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return Column(
+              children: [
+                ListTile(
+                  leading: Avatar(userId: sender.id, size: 50.0),
+                  title: Text(sender.name),
+                  subtitle: Text(notification.createTime.toDate().toString()),
+                ),
+                const Divider(),
+                Text(notification.content),
+              ],
+            );
+          }),
     ));
   }
 }
