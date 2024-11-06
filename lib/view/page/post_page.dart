@@ -331,14 +331,74 @@ class _PostPageState extends State<PostPage> {
     await _replyProvider.addReply(widget.postId, reply);
   }
 
+  Future<void> _editPost() async {
+  final TextEditingController _editController = TextEditingController(text: _post!.content);
+
+  await showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Edit Post'),
+        content: TextField(
+          controller: _editController,
+          maxLines: 5,
+          decoration: const InputDecoration(
+            hintText: 'Edit your post content...',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context), // Close dialog without saving
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _updatePost(_editController.text.trim());
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> _updatePost(String newContent) async {
+  if (newContent.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Post content cannot be empty')),
+    );
+    return;
+  }
+
+  await _postProvider.updatePostContent(_post!.id, newContent); // Update post content in Firestore
+
+  setState(() {
+    _post = _post!.copyWith(content: newContent); // Update local state
+  });
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Post updated successfully')),
+  );
+}
+
+
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading || _post == null || _author == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-
+    final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
-      appBar: AppBar(title: Text(_post!.title)),
+      appBar: AppBar(title: Text(_post!.title),actions: [
+        if (user != null && user.uid == _post!.authorId) // Check if the current user is the author
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: _editPost, // Call _editPost function on button press
+          ),
+      ],),
       body: Column(
         children: [
           ListTile(

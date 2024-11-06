@@ -44,4 +44,20 @@ class Post {
       authorId: data['author'].id,
     );
   }
+
+  Post copyWith({
+    String? id,
+    String? title,
+    String? content,
+    String? category,
+    String? authorId,
+  }) {
+    return Post(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      category: category ?? this.category,
+      authorId: authorId ?? this.authorId,
+    );
+  }
 }
