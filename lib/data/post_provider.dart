@@ -33,6 +33,7 @@ class FirestorePostProvider implements PostProvider {
       'content': post.content,
       'category': post.category,
       'author': authorRef,
+      'createdTime': Timestamp.now(),
     }).then((value) {
       authorRef.get().then((authorSnapshot) {
         if (authorSnapshot.data() != null) {
@@ -73,6 +74,7 @@ class FirestorePostProvider implements PostProvider {
     return _firestore
         .collection('posts')
         .where('author', isEqualTo: _firestore.doc('users/$authorId'))
+        .orderBy('createdTime', descending: true)
         .snapshots()
         .asyncMap((QuerySnapshot snapshot) {
       return snapshot.docs
@@ -84,7 +86,8 @@ class FirestorePostProvider implements PostProvider {
 
   @override
   Stream<List<Post>> getPostsStream(PostCategory? category) {
-    Query collectionRef = _firestore.collection('posts');
+    Query collectionRef =
+        _firestore.collection('posts').orderBy('createdTime', descending: true);
     if (category != null) {
       collectionRef =
           collectionRef.where('category', isEqualTo: category.label);
