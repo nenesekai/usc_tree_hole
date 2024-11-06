@@ -1,6 +1,10 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
 import 'package:usc_tree_hole/main.dart';
 import 'package:usc_tree_hole/model/post.dart';
@@ -47,6 +51,8 @@ class _SignUpPageState extends State<SignUpPage> {
   late InputDecoration _passwordDecoration;
   late InputDecoration _confirmPasswordDecoration;
   late InputDecoration _uscIdDecoration;
+
+  File? _avatar = null;
 
   bool validateEmail() {
     if (_emailController.text.isEmpty) {
@@ -157,6 +163,55 @@ class _SignUpPageState extends State<SignUpPage> {
     super.initState();
   }
 
+  void onPressedSignUp() {
+    if (validateEmail() &&
+        validateName() &&
+        validateUscId() &&
+        validateRole() &&
+        validatePassword() &&
+        validateConfirmPassword()) {
+      FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: _emailController.text, password: _passwordController.text)
+          .then((userCredential) {
+        final profile = Profile(
+          id: userCredential.user!.uid,
+          name: _nameController.text,
+          role: _roleController.text,
+          uscId: _uscIdController.text,
+        );
+        _userProvider.addProfile(profile).then((_) {
+          if (_avatar != null) {
+            _userProvider.uploadAvatar(_avatar!, userCredential.user!.uid);
+          }
+          if (mounted) {
+            Navigator.pushReplacementNamed(context, HomePage.route);
+          }
+        });
+      }).onError((FirebaseAuthException e, _) {
+        showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+                    title: const Text('Register Failed'),
+                    content: Text(e.code),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'))
+                    ]));
+      });
+    }
+  }
+
+  void onPressPickProfilePicture() async {
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (image != null && mounted) {
+      setState(() {
+        _avatar = File(image.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -165,7 +220,16 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
       body: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+          child: ListView(children: [
+            SizedBox(
+                height: 140,
+                width: 140,
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16.0),
+                    child: _avatar == null
+                        ? Image.asset('assets/default_avatar.jpg')
+                        : Image.file(_avatar!))),
+            SizedBox(height: 18.0),
             TextField(
               controller: _emailController,
               decoration: _emailDecoration,
@@ -242,49 +306,19 @@ class _SignUpPageState extends State<SignUpPage> {
             const SizedBox(height: 60.0),
             Padding(
               padding: const EdgeInsets.all(20.0),
-              child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                      onPressed: () {
-                        if (validateEmail() &&
-                            validateName() &&
-                            validateUscId() &&
-                            validateRole() &&
-                            validatePassword() &&
-                            validateConfirmPassword()) {
-                          FirebaseAuth.instance
-                              .createUserWithEmailAndPassword(
-                                  email: _emailController.text,
-                                  password: _passwordController.text)
-                              .then((userCredential) {
-                            final profile = Profile(
-                              id: userCredential.user!.uid,
-                              name: _nameController.text,
-                              role: _roleController.text,
-                              uscId: _uscIdController.text,
-                            );
-                            _userProvider.addProfile(profile).then((_) {
-                              if (mounted) {
-                                Navigator.pushReplacementNamed(
-                                    context, HomePage.route);
-                              }
-                            });
-                          }).onError((FirebaseAuthException e, _) {
-                            showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                        title: const Text('Register Failed'),
-                                        content: Text(e.code),
-                                        actions: [
-                                          TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(context),
-                                              child: const Text('OK'))
-                                        ]));
-                          });
-                        }
-                      },
-                      child: const Text('Sign Up'))),
+              child: Column(children: [
+                SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                        onPressed: onPressPickProfilePicture,
+                        child: const Text('Pick Profile Picture'))),
+                SizedBox(height: 8.0),
+                SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                        onPressed: onPressedSignUp,
+                        child: const Text('Sign Up'))),
+              ]),
             ),
           ])),
     );
