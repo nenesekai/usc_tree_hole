@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
+import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 import 'package:usc_tree_hole/view/component/avatar.dart';
+import 'package:usc_tree_hole/view/component/post_card.dart';
 import 'package:usc_tree_hole/view/page/not_signed_in_page.dart';
 import 'package:usc_tree_hole/view/page/welcome_page.dart';
 
@@ -22,6 +25,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final _profileProvider = FirebaseProfileProvider();
+  final _postProvider = FirestorePostProvider();
   final _firebaseAuth = FirebaseAuth.instance;
 
   @override
@@ -29,22 +33,32 @@ class _ProfilePageState extends State<ProfilePage> {
     return StreamBuilder<Profile?>(
       stream: _profileProvider.getProfileStreamById(widget.profileId),
       builder: (context, snapshot) {
-        Profile? profile = snapshot.data;
-        return Scaffold(
-          appBar: AppBar(title: const Text('Profile')),
-          body: snapshot.hasData == false
-              ? const Center(child: CircularProgressIndicator())
-              : profile == null
-                  ? const Center(child: Text('Profile Not Found'))
-                  : Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: ListView(children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: ProfileCard(profile: profile),
-                        )
-                      ])),
-        );
+        final Profile? profile = snapshot.data;
+        return StreamBuilder<List<Post>>(
+            stream: profile == null
+                ? Stream.empty()
+                : _postProvider.getPostsStreamByAuthorId(profile.id),
+            builder: (context, snapshot) {
+              final List<Post>? posts = snapshot.data;
+              return Scaffold(
+                appBar: AppBar(title: const Text('Profile')),
+                body: snapshot.hasData == false
+                    ? const Center(child: CircularProgressIndicator())
+                    : profile == null || posts == null
+                        ? const Center(child: Text('Profile Not Found'))
+                        : Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: ListView(children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: ProfileCard(profile: profile),
+                              ),
+                              Divider(),
+                              ...posts.map((post) => PostCard(post: post))
+                            ])),
+              );
+            });
       },
     );
   }

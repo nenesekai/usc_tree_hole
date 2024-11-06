@@ -11,10 +11,12 @@ abstract class PostProvider {
   Future<void> updatePostContent(String postId, String newContent);
   Stream<Post> getPostStream(String postId);
   Stream<List<Post>> getPostsStream(PostCategory? category);
+  Stream<List<Post>> getPostsStreamByAuthorId(String authorId);
 }
 
 class FirestorePostProvider implements PostProvider {
-  final CollectionReference _postsCollection = FirebaseFirestore.instance.collection('posts');
+  final CollectionReference _postsCollection =
+      FirebaseFirestore.instance.collection('posts');
   final _firestore = FirebaseFirestore.instance;
 
   static PostCategory getCategoryByName(String name) {
@@ -60,15 +62,29 @@ class FirestorePostProvider implements PostProvider {
 
   @override
   Stream<Post> getPostStream(String postId) {
-    return FirebaseFirestore.instance
+    return _firestore
         .doc('posts/$postId')
         .snapshots()
         .asyncMap((snapshot) => Post.fromSnapshot(snapshot));
   }
 
   @override
+  Stream<List<Post>> getPostsStreamByAuthorId(String authorId) {
+    return _firestore
+        .collection('posts')
+        .where('author', isEqualTo: _firestore.doc('users/$authorId'))
+        .snapshots()
+        .asyncMap((QuerySnapshot snapshot) {
+      return snapshot.docs
+          .map((QueryDocumentSnapshot docSnapshot) =>
+              Post.fromSnapshot(docSnapshot))
+          .toList();
+    });
+  }
+
+  @override
   Stream<List<Post>> getPostsStream(PostCategory? category) {
-    Query collectionRef = FirebaseFirestore.instance.collection('posts');
+    Query collectionRef = _firestore.collection('posts');
     if (category != null) {
       collectionRef =
           collectionRef.where('category', isEqualTo: category.label);
@@ -83,7 +99,7 @@ class FirestorePostProvider implements PostProvider {
 
   @override
   Future<Post> getPostById(String postId) {
-    return FirebaseFirestore.instance
+    return _firestore
         .collection('posts')
         .doc(postId)
         .get()
