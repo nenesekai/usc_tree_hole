@@ -7,6 +7,7 @@ import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/reply.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 import 'package:usc_tree_hole/view/component/avatar.dart';
+import 'package:usc_tree_hole/view/page/profile_page.dart';
 
 class PostPage extends StatefulWidget {
   final String postId;
@@ -332,58 +333,59 @@ class _PostPageState extends State<PostPage> {
   }
 
   Future<void> _editPost() async {
-  final TextEditingController _editController = TextEditingController(text: _post!.content);
+    final TextEditingController _editController =
+        TextEditingController(text: _post!.content);
 
-  await showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text('Edit Post'),
-        content: TextField(
-          controller: _editController,
-          maxLines: 5,
-          decoration: const InputDecoration(
-            hintText: 'Edit your post content...',
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Post'),
+          content: TextField(
+            controller: _editController,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              hintText: 'Edit your post content...',
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context), // Close dialog without saving
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _updatePost(_editController.text.trim());
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-Future<void> _updatePost(String newContent) async {
-  if (newContent.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Post content cannot be empty')),
+          actions: [
+            TextButton(
+              onPressed: () =>
+                  Navigator.pop(context), // Close dialog without saving
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await _updatePost(_editController.text.trim());
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
     );
-    return;
   }
 
-  await _postProvider.updatePostContent(_post!.id, newContent); // Update post content in Firestore
+  Future<void> _updatePost(String newContent) async {
+    if (newContent.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Post content cannot be empty')),
+      );
+      return;
+    }
 
-  setState(() {
-    _post = _post!.copyWith(content: newContent); // Update local state
-  });
+    await _postProvider.updatePostContent(
+        _post!.id, newContent); // Update post content in Firestore
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Post updated successfully')),
-  );
-}
+    setState(() {
+      _post = _post!.copyWith(content: newContent); // Update local state
+    });
 
-
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Post updated successfully')),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -392,19 +394,30 @@ Future<void> _updatePost(String newContent) async {
     }
     final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
-      appBar: AppBar(title: Text(_post!.title),actions: [
-        if (user != null && user.uid == _post!.authorId) // Check if the current user is the author
-          IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: _editPost, // Call _editPost function on button press
-          ),
-      ],),
+      appBar: AppBar(
+        title: Text(_post!.title),
+        actions: [
+          if (user != null &&
+              user.uid ==
+                  _post!.authorId) // Check if the current user is the author
+            IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: _editPost, // Call _editPost function on button press
+            ),
+        ],
+      ),
       body: Column(
         children: [
-          ListTile(
-            leading: Avatar(userId: _author!.id, size: 40.0),
-            title: Text(_author!.name),
-            subtitle: Text(_post!.category),
+          InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, ProfilePage.route,
+                  arguments: _author!.id);
+            },
+            child: ListTile(
+              leading: Avatar(userId: _author!.id, size: 40.0),
+              title: Text(_author!.name),
+              subtitle: Text(_post!.category),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -422,7 +435,12 @@ Future<void> _updatePost(String newContent) async {
                   child: ListTile(
                     leading: reply.isAnonymous
                         ? CircleAvatar(child: Text(reply.anonymousName[0]))
-                        : Avatar(userId: reply.authorId, size: 40.0),
+                        : InkWell(
+                            onTap: () => Navigator.pushNamed(
+                                context, ProfilePage.route,
+                                arguments: reply.authorId),
+                            child: Avatar(userId: reply.authorId, size: 40.0),
+                          ),
                     title: Text(_getDisplayName(reply)),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
