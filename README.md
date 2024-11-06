@@ -1,16 +1,18 @@
-# usc_tree_hole
+# USC Tree Hole
 
-A new Flutter project.
+An app that brings Trojans together and share their life.
 
-## Getting Started
+## How to Run
 
-This project is a starting point for a Flutter application.
+#### How to Build a Release APK
 
-A few resources to get you started if this is your first Flutter project:
+Simply go under the project directory and execute `flutter build apk --split-per-abi`, the output apk will be generated under the directory of `/build/app/outputs/apk/release/`.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+#### How to Run the App in Debug Environment
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Install Dart and Flutter plugin in your Android Studio.
+![flutter plugin](image.png)
+![dart plugin](image-1.png)
+2. Clone the Project to local by using Get from VCS in Android Studio, it will automatically pull the project to local.
+3. Run the Project on the Device you want!
+![alt text](image-2.png)
