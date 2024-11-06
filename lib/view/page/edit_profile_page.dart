@@ -27,11 +27,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String? _nameError;
   String? _uscIdError;
 
-  late Avatar _avatar;
-
   @override
   void initState() {
-    _avatar = Avatar(userId: widget.profileId);
     _profileProvider.getProfileById(widget.profileId).then((Profile profile) {
       if (mounted) {
         setState(() {
@@ -75,35 +72,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-              padding: EdgeInsets.all(12.0),
+              padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 18.0),
               child: ListView(children: [
-                _avatar,
-                ElevatedButton(
-                  onPressed: () {
-                    ImagePicker()
-                        .pickImage(source: ImageSource.gallery)
-                        .then((XFile? image) {
-                      if (image == null) return;
-                      _profileProvider
-                          .uploadAvatar(
-                        File(image.path),
-                        widget.profileId,
-                      )
-                          .then(
-                        (value) {
-                          if (mounted) {
-                            setState(() {
-                              _avatar = Avatar(
-                                userId: widget.profileId,
-                              );
-                            });
-                          }
-                        },
-                      );
-                    });
-                  },
-                  child: const Text('Change Profile Picture'),
-                ),
                 TextField(
                   controller: _nameController,
                   decoration: InputDecoration(
@@ -112,6 +82,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     errorText: _nameError,
                   ),
                 ),
+                SizedBox(height: 12.0),
                 TextField(
                   controller: _uscIdController,
                   decoration: InputDecoration(
@@ -120,6 +91,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     errorText: _uscIdError,
                   ),
                 ),
+                SizedBox(height: 12.0),
                 DropdownMenu(
                   controller: _roleController,
                   dropdownMenuEntries: roles
@@ -129,7 +101,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   inputDecorationTheme:
                       const InputDecorationTheme(filled: true),
                   label: const Text('Role'),
-                )
+                ),
               ]),
             ),
     );

@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
 import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
+import 'package:usc_tree_hole/view/component/avatar.dart';
 import 'package:usc_tree_hole/view/page/edit_profile_page.dart';
 import 'package:usc_tree_hole/view/page/profile_page.dart';
 import 'package:usc_tree_hole/view/page/welcome_page.dart';
@@ -19,12 +23,38 @@ class MyProfilePage extends StatefulWidget {
 }
 
 class _MyProfilePageState extends State<MyProfilePage> {
+  bool _isLoading = true;
   final _profileProvider = FirebaseProfileProvider();
-  bool _toggle = false;
+
+  @override
+  void initState() {
+    setState(() {
+      _isLoading = false;
+    });
+    super.initState();
+  }
 
   void onSignOut(BuildContext context) {
     FirebaseAuth.instance.signOut();
     Navigator.pushReplacementNamed(context, WelcomePage.route);
+  }
+
+  void onPressChangeProfilePicture() {
+    ImagePicker().pickImage(source: ImageSource.gallery).then((XFile? image) {
+      if (image == null) return;
+      _profileProvider
+          .uploadAvatar(
+        File(image.path),
+        widget.user.uid,
+      )
+          .then(
+        (value) {
+          if (mounted) {
+            setState(() {});
+          }
+        },
+      );
+    });
   }
 
   @override
@@ -43,12 +73,19 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   ),
                 ],
               ),
-              body: profile == null
+              body: profile == null || _isLoading == true
                   ? const Center(child: CircularProgressIndicator())
                   : Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: ListView(children: [
-                        ProfileCard(profile: profile),
+                        InkWell(
+                            onTap: () => Navigator.pushNamed(
+                                context, ProfilePage.route,
+                                arguments: widget.user.uid),
+                            child: ProfileCard(profile: profile)),
+                        ElevatedButton(
+                            onPressed: onPressChangeProfilePicture,
+                            child: const Text('Change Profile Picture')),
                         ElevatedButton(
                           child: const Text('Edit Profile'),
                           onPressed: () {
