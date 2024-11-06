@@ -6,11 +6,15 @@ import 'package:usc_tree_hole/model/post.dart';
 abstract class PostProvider {
   Future<void> addPost(Post post);
   Future<Post> getPostById(String postId);
+  Future<void> updatePostContent(String postId, String newContent);
   Stream<Post> getPostStream(String postId);
   Stream<List<Post>> getPostsStream(PostCategory? category);
 }
 
 class FirestorePostProvider implements PostProvider {
+
+  final CollectionReference _postsCollection = FirebaseFirestore.instance.collection('posts');
+
   static PostCategory getCategoryByName(String name) {
     return postCategories.where((category) => category.label == name).first;
   }
@@ -57,5 +61,11 @@ class FirestorePostProvider implements PostProvider {
         .doc(postId)
         .get()
         .then((DocumentSnapshot doc) => Post.fromSnapshot(doc));
+  }
+
+  Future<void> updatePostContent(String postId, String newContent) async {
+    await _postsCollection.doc(postId).update({
+      'content': newContent,
+    });
   }
 }
