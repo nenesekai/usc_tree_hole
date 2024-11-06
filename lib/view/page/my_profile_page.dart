@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
+import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 import 'package:usc_tree_hole/view/page/edit_profile_page.dart';
 import 'package:usc_tree_hole/view/page/profile_page.dart';
@@ -19,6 +20,7 @@ class MyProfilePage extends StatefulWidget {
 
 class _MyProfilePageState extends State<MyProfilePage> {
   final _profileProvider = FirebaseProfileProvider();
+  bool _toggle = false;
 
   void onSignOut(BuildContext context) {
     FirebaseAuth.instance.signOut();
@@ -47,13 +49,46 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       padding: const EdgeInsets.all(8.0),
                       child: ListView(children: [
                         ProfileCard(profile: profile),
-                        const Divider(),
                         ElevatedButton(
                           child: const Text('Edit Profile'),
                           onPressed: () {
                             Navigator.pushNamed(context, EditProfilePage.route,
                                 arguments: profile.id);
                           },
+                        ),
+                        const Divider(),
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Card(
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  const Text('Categories Subscribed'),
+                                  ...postCategories.map((category) =>
+                                      Row(children: [
+                                        Text(category.label),
+                                        Switch.adaptive(
+                                            value: profile.subscribedCategories
+                                                .contains(category.label),
+                                            onChanged: (value) {
+                                              List<dynamic> sub =
+                                                  profile.subscribedCategories;
+                                              if (value) {
+                                                sub.add(category.label);
+                                              } else {
+                                                sub.remove(category.label);
+                                              }
+                                              _profileProvider
+                                                  .updateProfile(profile.id, {
+                                                'subscribedCategories': sub,
+                                              });
+                                            }),
+                                      ])),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ])));
         });

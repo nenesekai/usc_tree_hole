@@ -3,13 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Notification {
   final String id;
   final String content;
-  final String userId;
-  final DateTime createTime;
+  final String senderId;
+  final Timestamp createTime;
 
-  Notification({
+  const Notification({
     required this.id,
     required this.content,
-    required this.userId,
+    required this.senderId,
     required this.createTime,
   });
 
@@ -18,8 +18,16 @@ class Notification {
     return Notification(
       id: snapshot.id,
       content: data['content'],
-      userId: data['user'].id,
+      senderId: data['sender'].id,
       createTime: data['createTime'],
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'content': content,
+      'sender': FirebaseFirestore.instance.doc('/users/$senderId'),
+      'createTime': createTime,
+    };
   }
 }

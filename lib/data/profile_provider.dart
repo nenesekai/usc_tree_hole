@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 
 abstract class ProfileProvider {
@@ -11,6 +12,11 @@ abstract class ProfileProvider {
   Future<void> addProfile(Profile profile);
   Future<String?> getAvatarUrl(String profileId);
   Future<void> uploadAvatar(File avatar, String profileId);
+  Future<void> updateProfile(String profileId, Map<String, dynamic> args);
+  Future<void> subscribe(
+      {required String profileId, required PostCategory category});
+  Future<void> unsubscribe(
+      {required String profileId, required PostCategory category});
 }
 
 class FirebaseProfileProvider implements ProfileProvider {
@@ -35,12 +41,17 @@ class FirebaseProfileProvider implements ProfileProvider {
   }
 
   @override
+  Future<void> updateProfile(
+      String profileId, Map<String, dynamic> args) async {
+    return FirebaseFirestore.instance.doc('users/$profileId').update(args);
+  }
+
+  @override
   Future<void> addProfile(Profile profile) {
-    return FirebaseFirestore.instance.collection('users').doc(profile.id).set({
-      'name': profile.name,
-      'role': profile.role,
-      'uscId': profile.uscId,
-    });
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(profile.id)
+        .set(profile.toMap());
   }
 
   @override
@@ -61,5 +72,17 @@ class FirebaseProfileProvider implements ProfileProvider {
     } on FirebaseException catch (e) {
       print(e.code);
     }
+  }
+
+  @override
+  Future<void> subscribe(
+      {required profileId, required PostCategory category}) async {
+    // TODO
+  }
+
+  @override
+  Future<void> unsubscribe(
+      {required String profileId, required PostCategory category}) async {
+    // TODO
   }
 }
