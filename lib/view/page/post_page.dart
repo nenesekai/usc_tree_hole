@@ -332,6 +332,33 @@ class _PostPageState extends State<PostPage> {
     await _replyProvider.addReply(widget.postId, reply);
   }
 
+  Future<void> _deletePost() async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Do you really want to delete this post"),
+          actions: [
+            TextButton(
+              onPressed: (){
+                _postProvider.deletePost(widget.postId);
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: const Text("Yes"),
+            ),
+            TextButton(
+              onPressed: (){
+                Navigator.pop(context);
+              },
+              child: const Text("No"),
+            ),
+          ]
+        );
+      }
+    );
+  }
+
   Future<void> _editPost() async {
     final TextEditingController _editController =
         TextEditingController(text: _post!.content);
@@ -396,15 +423,21 @@ class _PostPageState extends State<PostPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_post!.title),
-        actions: [
-          if (user != null &&
-              user.uid ==
-                  _post!.authorId) // Check if the current user is the author
-            IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: _editPost, // Call _editPost function on button press
-            ),
-        ],
+        actions: (user != null && user.uid == _post!.authorId)
+            ? // Check if the current user is the author
+            [
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed:
+                      _editPost, // Call _editPost function on button press
+                ),
+              IconButton(
+                icon: Icon(Icons.delete),
+                onPressed:
+                _deletePost, // Call _editPost function on button press
+              ),
+              ]
+            : [],
       ),
       body: Column(
         children: [

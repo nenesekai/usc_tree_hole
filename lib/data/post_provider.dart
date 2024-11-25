@@ -6,12 +6,13 @@ import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 
 abstract class PostProvider {
-  Future<void> addPost(Post post);
+  Future<String> addPost(Post post);
   Future<Post> getPostById(String postId);
   Future<void> updatePostContent(String postId, String newContent);
   Stream<Post> getPostStream(String postId);
   Stream<List<Post>> getPostsStream(PostCategory? category);
   Stream<List<Post>> getPostsStreamByAuthorId(String authorId);
+  Future<void> deletePost(String postId);
 }
 
 class FirestorePostProvider implements PostProvider {
@@ -24,41 +25,38 @@ class FirestorePostProvider implements PostProvider {
   }
 
   @override
-  Future<void> addPost(Post post) {
+  Future<String> addPost(Post post) async {
     final posts = FirebaseFirestore.instance.collection('posts');
     final authorRef =
         FirebaseFirestore.instance.collection('users').doc(post.authorId);
-    return posts.add({
+    final docRef = await posts.add({
       'title': post.title,
       'content': post.content,
       'category': post.category,
       'author': authorRef,
       'createdTime': Timestamp.now(),
-    }).then((value) {
-      authorRef.get().then((authorSnapshot) {
-        if (authorSnapshot.data() != null) {
-          final author = Profile.fromSnapshot(authorSnapshot);
-          final query = _firestore
-              .collection('users')
-              .where('subscribedCategories', arrayContains: post.category);
-          query.get().then(
-            (querySnapshot) {
-              for (final doc in querySnapshot.docs) {
-                _firestore
-                    .collection('users/${doc.id}/notifications')
-                    .add(Notification(
-                      id: '',
-                      content:
-                          '${author.name} created a new post \'${post.title}\' under ${post.category} category you subscribed to!',
-                      senderId: author.id,
-                      createTime: Timestamp.now(),
-                    ).toMap());
-              }
-            },
-          );
-        }
-      });
     });
+    final authorSnapshot = await authorRef.get();
+    if (authorSnapshot.data() != null) {
+      final author = Profile.fromSnapshot(authorSnapshot);
+      final query = _firestore
+          .collection('users')
+          .where('subscribedCategories', arrayContains: post.category);
+      final querySnapshot = await query.get();
+      for (final doc in querySnapshot.docs) {
+        _firestore
+            .collection('users/${doc.id}/notifications')
+            .add(Notification(
+          id: '',
+          content:
+          '${author.name} created a new post \'${post.title}\' under ${post
+              .category} category you subscribed to!',
+          senderId: author.id,
+          createTime: Timestamp.now(),
+        ).toMap());
+      }
+    }
+    return docRef.id;
   }
 
   @override
@@ -109,9 +107,15 @@ class FirestorePostProvider implements PostProvider {
         .then((DocumentSnapshot doc) => Post.fromSnapshot(doc));
   }
 
+  @override
   Future<void> updatePostContent(String postId, String newContent) async {
     await _postsCollection.doc(postId).update({
       'content': newContent,
     });
+  }
+
+  @override
+  Future<void> deletePost(String postId) async {
+    await _postsCollection.doc(postId).delete();
   }
 }
