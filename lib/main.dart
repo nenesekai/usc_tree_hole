@@ -12,9 +12,11 @@ import 'package:usc_tree_hole/view/page/profile_page.dart';
 import 'package:usc_tree_hole/view/page/sign_in_page.dart';
 import 'package:usc_tree_hole/view/page/sign_up_page.dart';
 import 'package:usc_tree_hole/view/page/welcome_page.dart';
+import 'package:flutter_driver/driver_extension.dart';
 import 'firebase_options.dart';
 
 void main() async {
+  // enableFlutterDriverExtension();
   // Initialize Firebase
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
