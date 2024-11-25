@@ -1,9 +1,8 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 
 abstract class ProfileProvider {
@@ -13,17 +12,12 @@ abstract class ProfileProvider {
   Future<String?> getAvatarUrl(String profileId);
   Future<void> uploadAvatar(File avatar, String profileId);
   Future<void> updateProfile(String profileId, Map<String, dynamic> args);
-  Future<void> subscribe(
-      {required String profileId, required PostCategory category});
-  Future<void> unsubscribe(
-      {required String profileId, required PostCategory category});
   Future<void> deleteProfile(String profileId);
 }
 
 class FirebaseProfileProvider implements ProfileProvider {
   late final FirebaseStorage _firebaseStorage;
   late final FirebaseFirestore _firebaseFirestore;
-  late final FirebaseAuth _firebaseAuth;
 
   FirebaseProfileProvider(
       [FirebaseFirestore? firebaseFirestore, FirebaseStorage? firebaseStorage])
@@ -82,19 +76,7 @@ class FirebaseProfileProvider implements ProfileProvider {
       final ref = _firebaseStorage.ref('avatar/$profileId.jpg');
       await ref.putFile(avatar);
     } on FirebaseException catch (e) {
-      print(e.code);
+      log(e.code);
     }
-  }
-
-  @override
-  Future<void> subscribe(
-      {required profileId, required PostCategory category}) async {
-    // TODO
-  }
-
-  @override
-  Future<void> unsubscribe(
-      {required String profileId, required PostCategory category}) async {
-    // TODO
   }
 }
