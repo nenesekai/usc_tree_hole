@@ -3,7 +3,7 @@ import 'package:usc_tree_hole/model/notification.dart';
 
 abstract class NotificationProvider {
   Stream<List<Notification>> notificationStream();
-  Future pushNotification(String targetId, Notification notification);
+  Future<String> pushNotification(String targetId, Notification notification);
   Future clearNotifications();
 }
 
@@ -27,10 +27,16 @@ class FirebaseNotificationProvider implements NotificationProvider {
           .toList());
 
   @override
-  Future pushNotification(String targetId, Notification notification) {
+  Future<String> pushNotification(String targetId, Notification notification) {
+    Map<String, dynamic> map = {
+      'content': notification.content,
+      'sender': _firestore.doc('/users/${notification.senderId}'),
+      'createTime': notification.createTime,
+    };
     return _firestore
         .collection('users/$targetId/notifications')
-        .add(notification.toMap());
+        .add(map)
+        .then((ref) => ref.id);
   }
 
   @override

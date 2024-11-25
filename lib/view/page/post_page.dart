@@ -20,7 +20,7 @@ class PostPage extends StatefulWidget {
 
 class _PostPageState extends State<PostPage> {
   final PostProvider _postProvider = FirebasePostProvider();
-  final ReplyProvider _replyProvider = FirestoreReplyProvider();
+  final ReplyProvider _replyProvider = FirebaseReplyProvider();
   final ProfileProvider _profileProvider = FirebaseProfileProvider();
   final TextEditingController _replyController = TextEditingController();
 
@@ -65,7 +65,7 @@ class _PostPageState extends State<PostPage> {
       for (var reply in replies) {
         if (!reply.isAnonymous && !_userProfiles.containsKey(reply.authorId)) {
           final profile = await _profileProvider.getProfileById(reply.authorId);
-          _userProfiles[reply.authorId] = profile;
+          _userProfiles[reply.authorId] = profile!;
         }
       }
 

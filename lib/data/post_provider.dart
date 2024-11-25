@@ -44,14 +44,16 @@ class FirebasePostProvider implements PostProvider {
           .collection('users')
           .where('subscribedCategories', arrayContains: post.category);
       final querySnapshot = await query.get();
+      Map<String, dynamic> notificationMap = {
+        'content':
+            '${author.name} created a new post \'${post.title}\' under ${post.category} category you subscribed to!',
+        'sender': _firestore.doc('/users/${author.id}'),
+        'createTime': Timestamp.now(),
+      };
       for (final doc in querySnapshot.docs) {
-        _firestore.collection('users/${doc.id}/notifications').add(Notification(
-              id: '',
-              content:
-                  '${author.name} created a new post \'${post.title}\' under ${post.category} category you subscribed to!',
-              senderId: author.id,
-              createTime: Timestamp.now(),
-            ).toMap());
+        _firestore
+            .collection('users/${doc.id}/notifications')
+            .add(notificationMap);
       }
     }
     return docRef.id;

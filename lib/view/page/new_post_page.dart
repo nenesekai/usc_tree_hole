@@ -26,8 +26,8 @@ class _NewPostPageState extends State<NewPostPage> {
   bool _isLoading = true;
   PostCategory? _selectedCategory;
 
-  String? _categoryError = null;
-  String? _titleError = null;
+  String? _categoryError;
+  String? _titleError;
 
   late Profile author;
 
@@ -39,7 +39,7 @@ class _NewPostPageState extends State<NewPostPage> {
       Navigator.pop(context);
     }
     _profileProvider.getProfileById(user!.uid).then((author) {
-      this.author = author;
+      this.author = author!;
       setState(() {
         _isLoading = false;
       });

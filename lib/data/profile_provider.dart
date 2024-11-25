@@ -1,12 +1,13 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 
 abstract class ProfileProvider {
-  Future<Profile> getProfileById(String profileId);
+  Future<Profile?> getProfileById(String profileId);
   Stream<Profile> getProfileStreamById(String profileId);
   Future<void> addProfile(Profile profile);
   Future<String?> getAvatarUrl(String profileId);
@@ -16,24 +17,30 @@ abstract class ProfileProvider {
       {required String profileId, required PostCategory category});
   Future<void> unsubscribe(
       {required String profileId, required PostCategory category});
+  Future<void> deleteProfile(String profileId);
 }
 
 class FirebaseProfileProvider implements ProfileProvider {
   late final FirebaseStorage _firebaseStorage;
   late final FirebaseFirestore _firebaseFirestore;
+  late final FirebaseAuth _firebaseAuth;
 
   FirebaseProfileProvider(
-      [FirebaseStorage? firebaseStorage, FirebaseFirestore? firebaseFirestore])
+      [FirebaseFirestore? firebaseFirestore, FirebaseStorage? firebaseStorage])
       : _firebaseStorage = firebaseStorage ?? FirebaseStorage.instance,
         _firebaseFirestore = firebaseFirestore ?? FirebaseFirestore.instance;
 
   @override
-  Future<Profile> getProfileById(String profileId) {
-    return _firebaseFirestore
-        .collection('users')
-        .doc(profileId)
-        .get()
-        .then((DocumentSnapshot doc) => Profile.fromSnapshot(doc));
+  Future<void> deleteProfile(String profileId) {
+    return _firebaseFirestore.collection('users').doc(profileId).delete();
+  }
+
+  @override
+  Future<Profile?> getProfileById(String profileId) async {
+    final doc =
+        await _firebaseFirestore.collection('users').doc(profileId).get();
+    if (doc.data() == null) return null;
+    return Profile.fromSnapshot(doc);
   }
 
   @override

@@ -22,15 +22,6 @@ class Profile {
     this.subscribedCategories = const <String>[],
   });
 
-  @override
-  bool operator ==(Object other) {
-    if (other is Profile) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   factory Profile.fromSnapshot(DocumentSnapshot snapshot) {
     final data = snapshot.data() as Map<String, dynamic>;
     return Profile(
@@ -50,4 +41,11 @@ class Profile {
       'subscribedCategories': this.subscribedCategories,
     };
   }
+
+  Profile copyWith({String? id, String? name, String? role, String? uscId}) =>
+      Profile(
+          id: id ?? this.id,
+          name: name ?? this.name,
+          role: role ?? this.role,
+          uscId: uscId ?? this.uscId);
 }

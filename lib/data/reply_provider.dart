@@ -2,25 +2,31 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:usc_tree_hole/model/reply.dart';
 
 abstract class ReplyProvider {
-  Future<void> addReply(String postId, Reply reply);
+  Future<String> addReply(String postId, Reply reply);
   Stream<List<Reply>> getRepliesStream(String postId);
   Future<Map<String, dynamic>> getUserReplyStatus(String postId, String userId);
-  Future<void> setUserReplyStatus(String postId, String userId, bool isAnonymous, String anonymousName);
+  Future<void> setUserReplyStatus(
+      String postId, String userId, bool isAnonymous, String anonymousName);
 }
 
-class FirestoreReplyProvider implements ReplyProvider {
+class FirebaseReplyProvider implements ReplyProvider {
+  late final FirebaseFirestore _firebaseFirestore;
+  FirebaseReplyProvider([FirebaseFirestore? firebaseFirestore])
+      : _firebaseFirestore = firebaseFirestore ?? FirebaseFirestore.instance;
+
   @override
-  Future<void> addReply(String postId, Reply reply) {
-    final repliesCollection = FirebaseFirestore.instance
+  Future<String> addReply(String postId, Reply reply) async {
+    final repliesCollection = _firebaseFirestore
         .collection('posts')
         .doc(postId)
         .collection('replies');
-    return repliesCollection.add(reply.toMap());
+
+    return repliesCollection.add(reply.toMap()).then((ref) => ref.id);
   }
 
   @override
   Stream<List<Reply>> getRepliesStream(String postId) {
-    final repliesCollection = FirebaseFirestore.instance
+    final repliesCollection = _firebaseFirestore
         .collection('posts')
         .doc(postId)
         .collection('replies')
@@ -31,8 +37,9 @@ class FirestoreReplyProvider implements ReplyProvider {
   }
 
   @override
-  Future<Map<String, dynamic>> getUserReplyStatus(String postId, String userId) async {
-    final docRef = FirebaseFirestore.instance
+  Future<Map<String, dynamic>> getUserReplyStatus(
+      String postId, String userId) async {
+    final docRef = _firebaseFirestore
         .collection('posts')
         .doc(postId)
         .collection('userReplyStatus')
@@ -46,8 +53,9 @@ class FirestoreReplyProvider implements ReplyProvider {
   }
 
   @override
-  Future<void> setUserReplyStatus(String postId, String userId, bool isAnonymous, String anonymousName) {
-    final docRef = FirebaseFirestore.instance
+  Future<void> setUserReplyStatus(
+      String postId, String userId, bool isAnonymous, String anonymousName) {
+    final docRef = _firebaseFirestore
         .collection('posts')
         .doc(postId)
         .collection('userReplyStatus')

@@ -29,8 +29,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   void initState() {
-    _profileProvider.getProfileById(widget.profileId).then((Profile profile) {
+    _profileProvider.getProfileById(widget.profileId).then((Profile? profile) {
       if (mounted) {
+        if (profile == null) {
+          Navigator.pop(context);
+          return;
+        }
         setState(() {
           _nameController.text = profile.name;
           _uscIdController.text = profile.uscId;

@@ -26,7 +26,7 @@ class Post {
   final String category;
   final String authorId;
 
-  Post({
+  const Post({
     required this.id,
     required this.title,
     required this.content,

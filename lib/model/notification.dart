@@ -22,12 +22,4 @@ class Notification {
       createTime: data['createTime'],
     );
   }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'content': content,
-      'sender': FirebaseFirestore.instance.doc('/users/$senderId'),
-      'createTime': createTime,
-    };
-  }
 }
