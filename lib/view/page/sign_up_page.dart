@@ -45,6 +45,10 @@ class _SignUpPageState extends State<SignUpPage> {
     icon: Icon(Icons.password),
     label: Text('Password'),
   );
+  final _originalConfirmPasswordDecoration = const InputDecoration(
+    icon: Icon(Icons.password),
+    label: Text('Confirm Password'),
+  );
 
   late InputDecoration _emailDecoration;
   late InputDecoration _nameDecoration;
@@ -158,7 +162,7 @@ class _SignUpPageState extends State<SignUpPage> {
     _emailDecoration = _originalEmailDecoration;
     _nameDecoration = _originalNameDecoration;
     _passwordDecoration = _originalPasswordDecoration;
-    _confirmPasswordDecoration = _originalPasswordDecoration;
+    _confirmPasswordDecoration = _originalConfirmPasswordDecoration;
     _uscIdDecoration = _originalUscIdDecoration;
     super.initState();
   }
@@ -297,7 +301,8 @@ class _SignUpPageState extends State<SignUpPage> {
               obscureText: true,
               onChanged: (value) {
                 setState(() {
-                  _confirmPasswordDecoration = _originalPasswordDecoration;
+                  _confirmPasswordDecoration =
+                      _originalConfirmPasswordDecoration;
                 });
               },
               onSubmitted: (value) => validateConfirmPassword(),
