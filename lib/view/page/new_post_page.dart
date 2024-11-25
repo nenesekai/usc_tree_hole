@@ -17,7 +17,7 @@ class NewPostPage extends StatefulWidget {
 
 class _NewPostPageState extends State<NewPostPage> {
   final _profileProvider = FirebaseProfileProvider();
-  final _postProvider = FirestorePostProvider();
+  final _postProvider = FirebasePostProvider();
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
 

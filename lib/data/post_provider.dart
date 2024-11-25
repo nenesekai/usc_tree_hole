@@ -7,18 +7,20 @@ import 'package:usc_tree_hole/model/profile.dart';
 
 abstract class PostProvider {
   Future<String> addPost(Post post);
-  Future<Post> getPostById(String postId);
+  Future<Post?> getPostById(String postId);
   Future<void> updatePostContent(String postId, String newContent);
   Stream<Post> getPostStream(String postId);
-  Stream<List<Post>> getPostsStream(PostCategory? category);
+  Stream<List<Post>> getPostsStream([PostCategory? category]);
   Stream<List<Post>> getPostsStreamByAuthorId(String authorId);
   Future<void> deletePost(String postId);
 }
 
-class FirestorePostProvider implements PostProvider {
-  final CollectionReference _postsCollection =
-      FirebaseFirestore.instance.collection('posts');
-  final _firestore = FirebaseFirestore.instance;
+class FirebasePostProvider implements PostProvider {
+  late final FirebaseFirestore _firestore;
+  CollectionReference get _postsCollection => _firestore.collection('posts');
+
+  FirebasePostProvider([FirebaseFirestore? firestore])
+      : _firestore = firestore ?? FirebaseFirestore.instance;
 
   static PostCategory getCategoryByName(String name) {
     return postCategories.where((category) => category.label == name).first;
@@ -26,9 +28,8 @@ class FirestorePostProvider implements PostProvider {
 
   @override
   Future<String> addPost(Post post) async {
-    final posts = FirebaseFirestore.instance.collection('posts');
-    final authorRef =
-        FirebaseFirestore.instance.collection('users').doc(post.authorId);
+    final posts = _firestore.collection('posts');
+    final authorRef = _firestore.collection('users').doc(post.authorId);
     final docRef = await posts.add({
       'title': post.title,
       'content': post.content,
@@ -44,16 +45,13 @@ class FirestorePostProvider implements PostProvider {
           .where('subscribedCategories', arrayContains: post.category);
       final querySnapshot = await query.get();
       for (final doc in querySnapshot.docs) {
-        _firestore
-            .collection('users/${doc.id}/notifications')
-            .add(Notification(
-          id: '',
-          content:
-          '${author.name} created a new post \'${post.title}\' under ${post
-              .category} category you subscribed to!',
-          senderId: author.id,
-          createTime: Timestamp.now(),
-        ).toMap());
+        _firestore.collection('users/${doc.id}/notifications').add(Notification(
+              id: '',
+              content:
+                  '${author.name} created a new post \'${post.title}\' under ${post.category} category you subscribed to!',
+              senderId: author.id,
+              createTime: Timestamp.now(),
+            ).toMap());
       }
     }
     return docRef.id;
@@ -83,7 +81,7 @@ class FirestorePostProvider implements PostProvider {
   }
 
   @override
-  Stream<List<Post>> getPostsStream(PostCategory? category) {
+  Stream<List<Post>> getPostsStream([PostCategory? category]) {
     Query collectionRef =
         _firestore.collection('posts').orderBy('createdTime', descending: true);
     if (category != null) {
@@ -99,12 +97,14 @@ class FirestorePostProvider implements PostProvider {
   }
 
   @override
-  Future<Post> getPostById(String postId) {
-    return _firestore
-        .collection('posts')
-        .doc(postId)
-        .get()
-        .then((DocumentSnapshot doc) => Post.fromSnapshot(doc));
+  Future<Post?> getPostById(String postId) async {
+    DocumentSnapshot doc =
+        await _firestore.collection('posts').doc(postId).get();
+    if (doc.data() != null) {
+      return Post.fromSnapshot(doc);
+    } else {
+      return null;
+    }
   }
 
   @override

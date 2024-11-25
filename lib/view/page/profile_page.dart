@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
@@ -9,8 +8,6 @@ import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 import 'package:usc_tree_hole/view/component/avatar.dart';
 import 'package:usc_tree_hole/view/component/post_card.dart';
-import 'package:usc_tree_hole/view/page/not_signed_in_page.dart';
-import 'package:usc_tree_hole/view/page/welcome_page.dart';
 
 class ProfilePage extends StatefulWidget {
   static const route = '/profile';
@@ -25,7 +22,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final _profileProvider = FirebaseProfileProvider();
-  final _postProvider = FirestorePostProvider();
+  final _postProvider = FirebasePostProvider();
   final _firebaseAuth = FirebaseAuth.instance;
 
   @override

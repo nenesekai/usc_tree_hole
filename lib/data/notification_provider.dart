@@ -8,10 +8,13 @@ abstract class NotificationProvider {
 }
 
 class FirebaseNotificationProvider implements NotificationProvider {
-  final _firestore = FirebaseFirestore.instance;
+  late final FirebaseFirestore _firestore;
   final String _userId;
 
-  FirebaseNotificationProvider({required userId}) : _userId = userId;
+  FirebaseNotificationProvider(String userId,
+      [FirebaseFirestore? firebaseFirestore])
+      : _userId = userId,
+        _firestore = firebaseFirestore ?? FirebaseFirestore.instance;
 
   @override
   Stream<List<Notification>> notificationStream() => _firestore

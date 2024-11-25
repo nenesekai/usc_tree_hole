@@ -8,7 +8,7 @@ import 'package:usc_tree_hole/view/page/post_page.dart';
 
 class PostCard extends StatelessWidget {
   final ProfileProvider _profileProvider = FirebaseProfileProvider();
-  final PostProvider _postProvider = FirestorePostProvider();
+  final PostProvider _postProvider = FirebasePostProvider();
 
   PostCard({
     super.key,

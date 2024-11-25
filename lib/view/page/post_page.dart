@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:usc_tree_hole/data/post_provider.dart';
-import 'package:usc_tree_hole/data/reply_provider.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
+import 'package:usc_tree_hole/data/reply_provider.dart';
 import 'package:usc_tree_hole/model/post.dart';
-import 'package:usc_tree_hole/model/reply.dart';
 import 'package:usc_tree_hole/model/profile.dart';
+import 'package:usc_tree_hole/model/reply.dart';
 import 'package:usc_tree_hole/view/component/avatar.dart';
 import 'package:usc_tree_hole/view/page/profile_page.dart';
 
@@ -19,7 +19,7 @@ class PostPage extends StatefulWidget {
 }
 
 class _PostPageState extends State<PostPage> {
-  final PostProvider _postProvider = FirestorePostProvider();
+  final PostProvider _postProvider = FirebasePostProvider();
   final ReplyProvider _replyProvider = FirestoreReplyProvider();
   final ProfileProvider _profileProvider = FirebaseProfileProvider();
   final TextEditingController _replyController = TextEditingController();
@@ -47,6 +47,10 @@ class _PostPageState extends State<PostPage> {
 
   Future<void> _loadPost() async {
     final post = await _postProvider.getPostById(widget.postId);
+    if (post == null) {
+      if (context.mounted) Navigator.pop(context);
+      return;
+    }
     final author = await _profileProvider.getProfileById(post.authorId);
     setState(() {
       _post = post;
@@ -334,29 +338,27 @@ class _PostPageState extends State<PostPage> {
 
   Future<void> _deletePost() async {
     await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Do you really want to delete this post"),
-          actions: [
-            TextButton(
-              onPressed: (){
-                _postProvider.deletePost(widget.postId);
-                Navigator.pop(context);
-                Navigator.pop(context);
-              },
-              child: const Text("Yes"),
-            ),
-            TextButton(
-              onPressed: (){
-                Navigator.pop(context);
-              },
-              child: const Text("No"),
-            ),
-          ]
-        );
-      }
-    );
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              title: const Text("Do you really want to delete this post"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    _postProvider.deletePost(widget.postId);
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Yes"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("No"),
+                ),
+              ]);
+        });
   }
 
   Future<void> _editPost() async {
@@ -431,11 +433,11 @@ class _PostPageState extends State<PostPage> {
                   onPressed:
                       _editPost, // Call _editPost function on button press
                 ),
-              IconButton(
-                icon: Icon(Icons.delete),
-                onPressed:
-                _deletePost, // Call _editPost function on button press
-              ),
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed:
+                      _deletePost, // Call _editPost function on button press
+                ),
               ]
             : [],
       ),

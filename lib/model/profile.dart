@@ -22,6 +22,15 @@ class Profile {
     this.subscribedCategories = const <String>[],
   });
 
+  @override
+  bool operator ==(Object other) {
+    if (other is Profile) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   factory Profile.fromSnapshot(DocumentSnapshot snapshot) {
     final data = snapshot.data() as Map<String, dynamic>;
     return Profile(

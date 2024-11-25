@@ -1,14 +1,10 @@
-import 'dart:async';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart' hide Notification;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart' hide Notification;
 import 'package:usc_tree_hole/data/notification_provider.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
+import 'package:usc_tree_hole/model/notification.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 import 'package:usc_tree_hole/view/component/avatar.dart';
-import 'package:usc_tree_hole/view/page/not_signed_in_page.dart';
-import 'package:usc_tree_hole/model/notification.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key, required this.user});
@@ -25,8 +21,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   void initState() {
-    _notificationProvider =
-        FirebaseNotificationProvider(userId: widget.user.uid);
+    _notificationProvider = FirebaseNotificationProvider(widget.user.uid);
     _isLoading = false;
     super.initState();
   }

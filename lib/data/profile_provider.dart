@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/model/profile.dart';
 
@@ -20,11 +19,17 @@ abstract class ProfileProvider {
 }
 
 class FirebaseProfileProvider implements ProfileProvider {
-  final _firebaseStorage = FirebaseStorage.instance;
+  late final FirebaseStorage _firebaseStorage;
+  late final FirebaseFirestore _firebaseFirestore;
+
+  FirebaseProfileProvider(
+      [FirebaseStorage? firebaseStorage, FirebaseFirestore? firebaseFirestore])
+      : _firebaseStorage = firebaseStorage ?? FirebaseStorage.instance,
+        _firebaseFirestore = firebaseFirestore ?? FirebaseFirestore.instance;
 
   @override
   Future<Profile> getProfileById(String profileId) {
-    return FirebaseFirestore.instance
+    return _firebaseFirestore
         .collection('users')
         .doc(profileId)
         .get()
@@ -33,7 +38,7 @@ class FirebaseProfileProvider implements ProfileProvider {
 
   @override
   Stream<Profile> getProfileStreamById(String profileId) {
-    return FirebaseFirestore.instance
+    return _firebaseFirestore
         .collection('users')
         .doc(profileId)
         .snapshots()
@@ -43,12 +48,12 @@ class FirebaseProfileProvider implements ProfileProvider {
   @override
   Future<void> updateProfile(
       String profileId, Map<String, dynamic> args) async {
-    return FirebaseFirestore.instance.doc('users/$profileId').update(args);
+    return _firebaseFirestore.doc('users/$profileId').update(args);
   }
 
   @override
   Future<void> addProfile(Profile profile) {
-    return FirebaseFirestore.instance
+    return _firebaseFirestore
         .collection('users')
         .doc(profile.id)
         .set(profile.toMap());

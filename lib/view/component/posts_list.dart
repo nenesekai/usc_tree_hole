@@ -14,7 +14,7 @@ class PostsListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-        stream: FirestorePostProvider().getPostsStream(category),
+        stream: FirebasePostProvider().getPostsStream(category),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final List<Post> posts = snapshot.data!;
