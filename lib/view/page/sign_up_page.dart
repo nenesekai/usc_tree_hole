@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,14 +14,34 @@ import 'package:usc_tree_hole/model/profile.dart';
 class SignUpPage extends StatefulWidget {
   static const route = '/signup';
 
-  const SignUpPage({super.key});
+  const SignUpPage(
+      {super.key,
+      required this.firestore,
+      required this.storage,
+      required this.auth});
+
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final FirebaseAuth auth;
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final _userProvider = FirebaseProfileProvider();
+  late final ProfileProvider _profileProvider;
+
+  @override
+  void initState() {
+    _emailDecoration = _originalEmailDecoration;
+    _nameDecoration = _originalNameDecoration;
+    _passwordDecoration = _originalPasswordDecoration;
+    _confirmPasswordDecoration = _originalPasswordDecoration;
+    _uscIdDecoration = _originalUscIdDecoration;
+    _profileProvider =
+        FirebaseProfileProvider(widget.firestore, widget.storage);
+    super.initState();
+  }
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
@@ -153,16 +174,6 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  @override
-  void initState() {
-    _emailDecoration = _originalEmailDecoration;
-    _nameDecoration = _originalNameDecoration;
-    _passwordDecoration = _originalPasswordDecoration;
-    _confirmPasswordDecoration = _originalPasswordDecoration;
-    _uscIdDecoration = _originalUscIdDecoration;
-    super.initState();
-  }
-
   void onPressedSignUp() {
     if (validateEmail() &&
         validateName() &&
@@ -170,7 +181,7 @@ class _SignUpPageState extends State<SignUpPage> {
         validateRole() &&
         validatePassword() &&
         validateConfirmPassword()) {
-      FirebaseAuth.instance
+      widget.auth
           .createUserWithEmailAndPassword(
               email: _emailController.text, password: _passwordController.text)
           .then((userCredential) {
@@ -180,9 +191,9 @@ class _SignUpPageState extends State<SignUpPage> {
           role: _roleController.text,
           uscId: _uscIdController.text,
         );
-        _userProvider.addProfile(profile).then((_) {
+        _profileProvider.addProfile(profile).then((_) {
           if (_avatar != null) {
-            _userProvider.uploadAvatar(_avatar!, userCredential.user!.uid);
+            _profileProvider.uploadAvatar(_avatar!, userCredential.user!.uid);
           }
           if (mounted) {
             Navigator.pushReplacementNamed(context, HomePage.route);

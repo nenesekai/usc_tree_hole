@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart' hide Notification;
 import 'package:usc_tree_hole/data/notification_provider.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
@@ -7,9 +9,17 @@ import 'package:usc_tree_hole/model/profile.dart';
 import 'package:usc_tree_hole/view/component/avatar.dart';
 
 class NotificationsPage extends StatefulWidget {
-  const NotificationsPage({super.key, required this.user});
+  const NotificationsPage(
+      {super.key,
+      required this.user,
+      required this.firestore,
+      required this.storage,
+      required this.auth});
 
   final User user;
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final FirebaseAuth auth;
 
   @override
   State<NotificationsPage> createState() => _NotificationsPageState();
@@ -21,7 +31,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   void initState() {
-    _notificationProvider = FirebaseNotificationProvider(widget.user.uid);
+    _notificationProvider =
+        FirebaseNotificationProvider(widget.user.uid, widget.firestore);
     _isLoading = false;
     super.initState();
   }

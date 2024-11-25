@@ -6,7 +6,9 @@ import 'package:usc_tree_hole/view/page/sign_up_page.dart';
 class SignInPage extends StatefulWidget {
   static const route = '/signin';
 
-  const SignInPage({super.key});
+  const SignInPage({super.key, required this.auth});
+
+  final FirebaseAuth auth;
 
   @override
   State<SignInPage> createState() => _SignInPageState();
@@ -63,7 +65,7 @@ class _SignInPageState extends State<SignInPage> {
                     width: double.infinity,
                     child: FilledButton(
                         onPressed: () {
-                          FirebaseAuth.instance
+                          widget.auth
                               .signInWithEmailAndPassword(
                                   email: _emailController.text,
                                   password: _passwordController.text)

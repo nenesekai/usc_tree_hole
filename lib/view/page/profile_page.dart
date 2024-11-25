@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
@@ -14,7 +16,15 @@ class ProfilePage extends StatefulWidget {
 
   final String profileId;
 
-  const ProfilePage({super.key, required this.profileId});
+  const ProfilePage(
+      {super.key,
+      required this.profileId,
+      required this.firestore,
+      required this.storage,
+      required this.auth});
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final FirebaseAuth auth;
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();

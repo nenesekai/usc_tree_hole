@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
@@ -12,7 +14,15 @@ import 'package:usc_tree_hole/view/page/profile_page.dart';
 class PostPage extends StatefulWidget {
   final String postId;
 
-  const PostPage({super.key, required this.postId});
+  const PostPage(
+      {super.key,
+      required this.postId,
+      required this.firestore,
+      required this.storage,
+      required this.auth});
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final FirebaseAuth auth;
 
   @override
   State<PostPage> createState() => _PostPageState();
@@ -39,6 +49,8 @@ class _PostPageState extends State<PostPage> {
 
   @override
   void initState() {
+    _postProvider = FirebasePostProvider(widget.firestore);
+    _replyProvider = FirebaseReplyProvider();
     super.initState();
     _loadPost();
     _loadReplies();

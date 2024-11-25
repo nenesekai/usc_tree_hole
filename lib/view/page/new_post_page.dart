@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
@@ -7,17 +9,26 @@ import 'package:usc_tree_hole/model/profile.dart';
 
 class NewPostPage extends StatefulWidget {
   static const route = '/newpost';
-  const NewPostPage({super.key, this.initialCategory});
+  const NewPostPage(
+      {super.key,
+      this.initialCategory,
+      required this.firestore,
+      required this.storage,
+      required this.auth});
 
   final PostCategory? initialCategory;
+
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final FirebaseAuth auth;
 
   @override
   State<NewPostPage> createState() => _NewPostPageState();
 }
 
 class _NewPostPageState extends State<NewPostPage> {
-  final _profileProvider = FirebaseProfileProvider();
-  final _postProvider = FirebasePostProvider();
+  late final ProfileProvider _profileProvider;
+  late final PostProvider _postProvider;
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
 
@@ -33,7 +44,10 @@ class _NewPostPageState extends State<NewPostPage> {
 
   @override
   void initState() {
-    final user = FirebaseAuth.instance.currentUser;
+    _profileProvider =
+        FirebaseProfileProvider(widget.firestore, widget.storage);
+    _postProvider = FirebasePostProvider(widget.firestore);
+    final user = widget.auth.currentUser;
     _selectedCategory = widget.initialCategory;
     if (user == null) {
       Navigator.pop(context);

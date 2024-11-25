@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:usc_tree_hole/model/post.dart';
@@ -20,8 +22,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  final auth = FirebaseAuth.instance;
+  final storage = FirebaseStorage.instance;
+  final firestore = FirebaseFirestore.instance;
 
-  runApp(const MyApp());
+  runApp(MyApp(auth: auth, storage: storage, firestore: firestore));
 }
 
 class MyApp extends StatelessWidget {
@@ -30,7 +35,15 @@ class MyApp extends StatelessWidget {
     useMaterial3: true,
   );
 
-  const MyApp({super.key});
+  final FirebaseAuth auth;
+  final FirebaseStorage storage;
+  final FirebaseFirestore firestore;
+
+  const MyApp(
+      {super.key,
+      required this.auth,
+      required this.storage,
+      required this.firestore});
 
   @override
   Widget build(BuildContext context) {
@@ -42,13 +55,20 @@ class MyApp extends StatelessWidget {
           case WelcomePage.route:
             return MaterialPageRoute(builder: (context) => const WelcomePage());
           case SignInPage.route:
-            return MaterialPageRoute(builder: (context) => const SignInPage());
+            return MaterialPageRoute(
+                builder: (context) => SignInPage(auth: auth));
           case SignUpPage.route:
-            return MaterialPageRoute(builder: (context) => const SignUpPage());
+            return MaterialPageRoute(
+                builder: (context) => SignUpPage(
+                    firestore: firestore, storage: storage, auth: auth));
           case NewPostPage.route:
             return MaterialPageRoute(builder: (context) {
               final category = settings.arguments as PostCategory;
-              return NewPostPage(initialCategory: category);
+              return NewPostPage(
+                  initialCategory: category,
+                  firestore: firestore,
+                  storage: storage,
+                  auth: auth);
             });
           case ProfilePage.route:
             return MaterialPageRoute(builder: (context) {

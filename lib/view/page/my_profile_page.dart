@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:usc_tree_hole/data/profile_provider.dart';
@@ -14,9 +16,17 @@ import 'package:usc_tree_hole/view/page/welcome_page.dart';
 class MyProfilePage extends StatefulWidget {
   static const route = '/myprofile';
 
-  const MyProfilePage({super.key, required this.user});
+  const MyProfilePage(
+      {super.key,
+      required this.user,
+      required this.firestore,
+      required this.storage,
+      required this.auth});
 
   final User user;
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final FirebaseAuth auth;
 
   @override
   State<MyProfilePage> createState() => _MyProfilePageState();
@@ -24,10 +34,12 @@ class MyProfilePage extends StatefulWidget {
 
 class _MyProfilePageState extends State<MyProfilePage> {
   bool _isLoading = true;
-  final _profileProvider = FirebaseProfileProvider();
+  late final FirebaseProfileProvider _profileProvider;
 
   @override
   void initState() {
+    _profileProvider =
+        FirebaseProfileProvider(widget.firestore, widget.storage);
     setState(() {
       _isLoading = false;
     });

@@ -1,15 +1,22 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/model/post.dart';
 import 'package:usc_tree_hole/view/component/posts_list.dart';
 
 class PostsPage extends StatefulWidget {
-  const PostsPage({
-    super.key,
-  });
+  const PostsPage(
+      {super.key,
+      required this.firestore,
+      required this.storage,
+      required this.auth});
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final FirebaseAuth auth;
 
   @override
   State<PostsPage> createState() => _PostsPageState();

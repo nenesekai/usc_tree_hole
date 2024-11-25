@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,8 +12,16 @@ import 'package:usc_tree_hole/view/component/avatar.dart';
 
 class EditProfilePage extends StatefulWidget {
   static const route = '/editprofile';
-  const EditProfilePage({super.key, required this.profileId});
+  const EditProfilePage(
+      {super.key,
+      required this.profileId,
+      required this.firestore,
+      required this.storage,
+      required this.auth});
   final String profileId;
+  final FirebaseFirestore firestore;
+  final FirebaseStorage storage;
+  final FirebaseAuth auth;
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
@@ -19,7 +29,7 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   bool _isLoading = true;
-  final _profileProvider = FirebaseProfileProvider();
+  late final FirebaseProfileProvider _profileProvider;
   final _nameController = TextEditingController();
   final _uscIdController = TextEditingController();
   final _roleController = TextEditingController();
@@ -29,6 +39,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   void initState() {
+    _profileProvider =
+        FirebaseProfileProvider(widget.firestore, widget.storage);
     _profileProvider.getProfileById(widget.profileId).then((Profile? profile) {
       if (mounted) {
         if (profile == null) {

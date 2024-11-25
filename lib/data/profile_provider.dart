@@ -23,7 +23,6 @@ abstract class ProfileProvider {
 class FirebaseProfileProvider implements ProfileProvider {
   late final FirebaseStorage _firebaseStorage;
   late final FirebaseFirestore _firebaseFirestore;
-  late final FirebaseAuth _firebaseAuth;
 
   FirebaseProfileProvider(
       [FirebaseFirestore? firebaseFirestore, FirebaseStorage? firebaseStorage])
