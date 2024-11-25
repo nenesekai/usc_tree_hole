@@ -7,16 +7,18 @@ class Avatar extends StatelessWidget {
     required this.userId,
     this.cornerRadius = 10.0,
     this.size = 100.0,
+    required this.profileProvider,
   });
 
   final String userId;
   final double cornerRadius;
   final double size;
+  final ProfileProvider profileProvider;
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: FirebaseProfileProvider().getAvatarUrl(userId),
+        future: profileProvider.getAvatarUrl(userId),
         builder: (context, snapshot) {
           return SizedBox(
               width: size,

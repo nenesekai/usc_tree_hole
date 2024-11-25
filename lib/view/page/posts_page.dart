@@ -25,7 +25,7 @@ class PostsPage extends StatefulWidget {
 class _PostsPageState extends State<PostsPage> {
   int _selectedCategoryIndex = 0;
   PostCategory get _selectedCategory => postCategories[_selectedCategoryIndex];
-  final FirebasePostProvider _firestorePostProvider = FirebasePostProvider();
+  late final FirebasePostProvider _firestorePostProvider;
   final snackBar =
       const SnackBar(content: Text('You Must Sign In Before You Can Post!'));
 
@@ -34,6 +34,7 @@ class _PostsPageState extends State<PostsPage> {
 
   @override
   void initState() {
+    _firestorePostProvider = FirebasePostProvider(widget.firestore);
     _isSignedIn = FirebaseAuth.instance.currentUser != null;
     _userSubscription =
         FirebaseAuth.instance.authStateChanges().listen((User? user) {

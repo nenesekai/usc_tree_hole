@@ -29,9 +29,9 @@ class PostPage extends StatefulWidget {
 }
 
 class _PostPageState extends State<PostPage> {
-  final PostProvider _postProvider = FirebasePostProvider();
-  final ReplyProvider _replyProvider = FirebaseReplyProvider();
-  final ProfileProvider _profileProvider = FirebaseProfileProvider();
+  late final PostProvider _postProvider;
+  late final ReplyProvider _replyProvider;
+  late final ProfileProvider _profileProvider;
   final TextEditingController _replyController = TextEditingController();
 
   Post? _post;
@@ -50,7 +50,9 @@ class _PostPageState extends State<PostPage> {
   @override
   void initState() {
     _postProvider = FirebasePostProvider(widget.firestore);
-    _replyProvider = FirebaseReplyProvider();
+    _replyProvider = FirebaseReplyProvider(widget.firestore);
+    _profileProvider =
+        FirebaseProfileProvider(widget.firestore, widget.storage);
     super.initState();
     _loadPost();
     _loadReplies();
@@ -461,7 +463,7 @@ class _PostPageState extends State<PostPage> {
                   arguments: _author!.id);
             },
             child: ListTile(
-              leading: Avatar(userId: _author!.id, size: 40.0),
+              leading: Avatar(userId: _author!.id, size: 40.0, profileProvider: ,),
               title: Text(_author!.name),
               subtitle: Text(_post!.category),
             ),

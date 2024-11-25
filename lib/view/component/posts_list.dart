@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:usc_tree_hole/data/post_provider.dart';
 import 'package:usc_tree_hole/model/post.dart';
@@ -7,14 +10,22 @@ class PostsListView extends StatelessWidget {
   const PostsListView({
     super.key,
     this.category,
-  });
+    required FirebasePostProvider postProvider,
+    required this.storage,
+    required this.firestore,
+    required this.auth,
+  }) : _postProvider = postProvider;
 
   final PostCategory? category;
+  final FirebasePostProvider _postProvider;
+  final FirebaseStorage storage;
+  final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-        stream: FirebasePostProvider().getPostsStream(category),
+        stream: _postProvider.getPostsStream(category),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final List<Post> posts = snapshot.data!;
@@ -25,7 +36,11 @@ class PostsListView extends StatelessWidget {
                 children: posts
                     .map((post) => Padding(
                         padding: const EdgeInsets.all(6.0),
-                        child: PostCard(post: post)))
+                        child: PostCard(
+                            post: post,
+                            firestore: firestore,
+                            storage: storage,
+                            auth: auth)))
                     .toList(),
               );
             }

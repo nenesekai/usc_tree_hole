@@ -73,18 +73,30 @@ class MyApp extends StatelessWidget {
           case ProfilePage.route:
             return MaterialPageRoute(builder: (context) {
               final profileId = settings.arguments as String;
-              return ProfilePage(profileId: profileId);
+              return ProfilePage(
+                  profileId: profileId,
+                  firestore: firestore,
+                  storage: storage,
+                  auth: auth);
             });
           case EditProfilePage.route:
             return MaterialPageRoute(builder: (context) {
               final profileId = settings.arguments as String;
-              return EditProfilePage(profileId: profileId);
+              return EditProfilePage(
+                  profileId: profileId,
+                  firestore: firestore,
+                  storage: storage,
+                  auth: auth);
             });
           default:
             return MaterialPageRoute(
                 builder: (context) => FirebaseAuth.instance.currentUser == null
                     ? const WelcomePage()
-                    : HomePage(user: FirebaseAuth.instance.currentUser!));
+                    : HomePage(
+                        user: FirebaseAuth.instance.currentUser!,
+                        storage: storage,
+                        firestore: firestore,
+                        auth: auth));
         }
       },
     );
@@ -94,9 +106,17 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatefulWidget {
   static const route = '/';
 
-  const HomePage({super.key, required this.user});
+  const HomePage(
+      {super.key,
+      required this.user,
+      required this.storage,
+      required this.firestore,
+      required this.auth});
 
   final User user;
+  final FirebaseStorage storage;
+  final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
 
   static const unselectedIcons = <IconData>[
     Icons.home_outlined,
@@ -125,9 +145,20 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: <Widget>[
-        const PostsPage(),
-        NotificationsPage(user: widget.user),
-        MyProfilePage(user: widget.user),
+        PostsPage(
+            firestore: widget.firestore,
+            storage: widget.storage,
+            auth: widget.auth),
+        NotificationsPage(
+            user: widget.user,
+            firestore: widget.firestore,
+            storage: widget.storage,
+            auth: widget.auth),
+        MyProfilePage(
+            user: widget.user,
+            firestore: widget.firestore,
+            storage: widget.storage,
+            auth: widget.auth),
       ][_selectedPage],
       bottomNavigationBar: NavigationBar(
         destinations: [

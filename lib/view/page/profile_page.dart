@@ -31,9 +31,16 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final _profileProvider = FirebaseProfileProvider();
-  final _postProvider = FirebasePostProvider();
-  final _firebaseAuth = FirebaseAuth.instance;
+  late final FirebaseProfileProvider _profileProvider;
+  late final FirebasePostProvider _postProvider;
+
+  @override
+  void initState() {
+    _profileProvider =
+        FirebaseProfileProvider(widget.firestore, widget.storage);
+    _postProvider = FirebasePostProvider(widget.firestore);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

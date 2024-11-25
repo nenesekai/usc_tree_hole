@@ -28,11 +28,13 @@ class NotificationsPage extends StatefulWidget {
 class _NotificationsPageState extends State<NotificationsPage> {
   bool _isLoading = true;
   late NotificationProvider _notificationProvider;
+  late ProfileProvider profileProvider;
 
   @override
   void initState() {
     _notificationProvider =
         FirebaseNotificationProvider(widget.user.uid, widget.firestore);
+    profileProvider = FirebaseProfileProvider(widget.firestore, widget.storage);
     _isLoading = false;
     super.initState();
   }
@@ -64,6 +66,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                 padding: const EdgeInsets.all(6.0),
                                 child: NotificationCard(
                                   notification: notification,
+                                  profileProvider: profileProvider,
                                 ),
                               ))
                           .toList(),
@@ -76,9 +79,11 @@ class NotificationCard extends StatelessWidget {
   const NotificationCard({
     super.key,
     required this.notification,
+    required this.profileProvider,
   });
 
   final Notification notification;
+  final ProfileProvider profileProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +101,11 @@ class NotificationCard extends StatelessWidget {
             return Column(
               children: [
                 ListTile(
-                  leading: Avatar(userId: sender.id, size: 50.0),
+                  leading: Avatar(
+                    userId: sender.id,
+                    size: 50.0,
+                    profileProvider: profileProvider,
+                  ),
                   title: Text(sender.name),
                   subtitle: Text(notification.createTime.toDate().toString()),
                 ),
