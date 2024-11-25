@@ -69,22 +69,24 @@ class _PostPageState extends State<PostPage> {
         }
       }
 
-      setState(() {
-        _replies = replies;
+      if (mounted) {
+        setState(() {
+          _replies = replies;
 
-        // Build the repliesById map
-        repliesById = {for (var reply in _replies) reply.id: reply};
+          // Build the repliesById map
+          repliesById = {for (var reply in _replies) reply.id: reply};
 
-        // Build the replyChildren map
-        replyChildren = {};
-        for (var reply in _replies) {
-          replyChildren[reply.parentId] ??= [];
-          replyChildren[reply.parentId]!.add(reply);
-        }
+          // Build the replyChildren map
+          replyChildren = {};
+          for (var reply in _replies) {
+            replyChildren[reply.parentId] ??= [];
+            replyChildren[reply.parentId]!.add(reply);
+          }
 
-        // Build the orderedReplies list
-        orderedReplies = _buildReplyList(widget.postId);
-      });
+          // Build the orderedReplies list
+          orderedReplies = _buildReplyList(widget.postId);
+        });
+      }
     });
   }
 
