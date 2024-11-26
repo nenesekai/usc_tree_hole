@@ -96,6 +96,47 @@ class _SignInPageState extends State<SignInPage> {
                           Navigator.popAndPushNamed(context, SignUpPage.route);
                         },
                         child: const Text('Create an Account'))),
+                TextButton(
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                                  title: const Text("Enter your email"),
+                                  content: TextField(
+                                    controller: _emailController,
+                                    decoration: const InputDecoration(
+                                        labelText: "Email"),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                        child: const Text("Cancel"),
+                                        onPressed: () =>
+                                            Navigator.pop(context)),
+                                    TextButton(
+                                        child: const Text("Send"),
+                                        onPressed: () {
+                                          final auth = FirebaseAuth.instance;
+                                          auth.sendPasswordResetEmail(
+                                              email: _emailController.text);
+                                          Navigator.pop(context);
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                    content: const Text(
+                                                        "Sent. Please check your email"),
+                                                    actions: [
+                                                      TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                  context),
+                                                          child:
+                                                              const Text("OK"))
+                                                    ],
+                                                  ));
+                                        }),
+                                  ]));
+                    },
+                    child: const Text("Forgot Password")),
               ],
             ),
           )
