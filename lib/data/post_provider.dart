@@ -9,8 +9,9 @@ abstract class PostProvider {
   Future<Post?> getPostById(String postId);
   Future<void> updatePostContent(String postId, String newContent);
   Stream<Post> getPostStream(String postId);
-  Stream<List<Post>> getPostsStream([PostCategory? category]);
-  Stream<List<Post>> getPostsStreamByAuthorId(String authorId);
+  Stream<List<Post>> getPostsStream(
+      {required int sort, PostCategory? category});
+  Stream<List<Post>> getPostsStreamByAuthorId(String authorId, [int sort]);
   Future<void> deletePost(String postId);
 }
 
@@ -67,13 +68,16 @@ class FirebasePostProvider implements PostProvider {
   }
 
   @override
-  Stream<List<Post>> getPostsStreamByAuthorId(String authorId) {
-    return _firestore
+  Stream<List<Post>> getPostsStreamByAuthorId(String authorId, [int sort = 0]) {
+    var query = _firestore
         .collection('posts')
-        .where('author', isEqualTo: _firestore.doc('users/$authorId'))
-        .orderBy('createdTime', descending: true)
-        .snapshots()
-        .asyncMap((QuerySnapshot snapshot) {
+        .where('author', isEqualTo: _firestore.doc('users/$authorId'));
+    if (sort == 1) {
+      query = query.orderBy('title', descending: true);
+    } else {
+      query = query.orderBy('createdTime', descending: true);
+    }
+    return query.snapshots().asyncMap((QuerySnapshot snapshot) {
       return snapshot.docs
           .map((QueryDocumentSnapshot docSnapshot) =>
               Post.fromSnapshot(docSnapshot))
@@ -82,12 +86,17 @@ class FirebasePostProvider implements PostProvider {
   }
 
   @override
-  Stream<List<Post>> getPostsStream([PostCategory? category]) {
-    Query collectionRef =
-        _firestore.collection('posts').orderBy('createdTime', descending: true);
+  Stream<List<Post>> getPostsStream(
+      {required int sort, PostCategory? category}) {
+    Query collectionRef = _firestore.collection('posts');
     if (category != null) {
       collectionRef =
           collectionRef.where('category', isEqualTo: category.label);
+    }
+    if (sort == 1) {
+      collectionRef = collectionRef.orderBy('title');
+    } else {
+      collectionRef = collectionRef.orderBy('createdTime', descending: true);
     }
     return collectionRef.snapshots().asyncMap((QuerySnapshot snapshot) {
       return snapshot.docs

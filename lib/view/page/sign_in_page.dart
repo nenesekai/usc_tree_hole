@@ -114,10 +114,31 @@ class _SignInPageState extends State<SignInPage> {
                                             Navigator.pop(context)),
                                     TextButton(
                                         child: const Text("Send"),
-                                        onPressed: () {
+                                        onPressed: () async {
                                           final auth = FirebaseAuth.instance;
-                                          auth.sendPasswordResetEmail(
-                                              email: _emailController.text);
+                                          try {
+                                            await auth.sendPasswordResetEmail(
+                                                email: _emailController.text);
+                                          } catch (e) {
+                                            if (!context.mounted) return;
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                        title: const Text(
+                                                            "Failed to send email"),
+                                                        content: Text(e.toString()),
+                                                        actions: [
+                                                          TextButton(
+                                                              onPressed: () =>
+                                                                  Navigator.pop(
+                                                                      context),
+                                                              child: const Text(
+                                                                  "OK"))
+                                                        ]));
+                                            return;
+                                          }
+                                          if (!context.mounted) return;
                                           Navigator.pop(context);
                                           showDialog(
                                               context: context,

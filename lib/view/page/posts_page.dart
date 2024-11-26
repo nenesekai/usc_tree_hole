@@ -17,6 +17,7 @@ class PostsPage extends StatefulWidget {
 
 class _PostsPageState extends State<PostsPage> {
   int _selectedCategoryIndex = 0;
+  int _sortMethod = 0;
   PostCategory get _selectedCategory => postCategories[_selectedCategoryIndex];
   final FirebasePostProvider _firestorePostProvider = FirebasePostProvider();
   final snackBar =
@@ -58,6 +59,19 @@ class _PostsPageState extends State<PostsPage> {
         appBar: AppBar(
           title: Text(_selectedCategory.label),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          actions: [
+            PopupMenuButton(
+                onSelected: (value) {
+                  setState(() {
+                    _sortMethod = value;
+                  });
+                },
+                itemBuilder: (context) => [
+                      PopupMenuItem(value: 0, child: Text('Create Time')),
+                      PopupMenuItem(value: 1, child: Text('Title')),
+                    ],
+                icon: Icon(Icons.sort))
+          ],
         ),
         drawer: NavigationDrawer(
             selectedIndex: _selectedCategoryIndex,
@@ -87,6 +101,7 @@ class _PostsPageState extends State<PostsPage> {
             }),
         body: PostsListView(
           category: _selectedCategory,
+          sort: _sortMethod,
         ));
   }
 }
